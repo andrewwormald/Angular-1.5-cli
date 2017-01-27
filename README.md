@@ -1,6 +1,7 @@
-![logo](https://github.com/SwiftySpartan/Angular-1.5-cli/raw/master/logo.svg)
- ANGULAR-1.5-CLI
+![logo](https://raw.githubusercontent.com/SwiftySpartan/Angular-1.5-cli/master/canvas1.png)
+
 ___________
+# ANGULAR-1.5-CLI
 ###### created by  Andrew Wormald
 
 ### Installation:
