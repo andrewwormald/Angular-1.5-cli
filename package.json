@@ -1,0 +1,36 @@
+{
+  "name": "angular-1.5-cli",
+  "version": "1.0.6",
+  "description": "A cli for Angular 1.5. Component generator.",
+  "main": "index.js",
+  "scripts": {
+    "test": "ag n c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SwiftySpartan/Angular-1.5-cli.git"
+  },
+  "keywords": [
+    "Angular",
+    "CLI"
+  ],
+  "author": "Andrew Wormald",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SwiftySpartan/Angular-1.5-cli/issues"
+  },
+  "bin": {
+    "gen": "./index.js"
+  },
+  "homepage": "https://github.com/SwiftySpartan/Angular-1.5-cli#readme",
+  "dependencies": {
+    "co": "^4.6.0",
+    "co-prompt": "^1.0.0",
+    "touch": "^1.0.0",
+    "mkdirp": "0.5.1",
+    "colors":"1.1.2",
+    "request":"2.79.0",
+    "fs-extra":"2.0.0"
+  },
+  "devDependencies": {}
+}
