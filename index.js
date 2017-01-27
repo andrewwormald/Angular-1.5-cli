@@ -118,7 +118,180 @@ mkdirp(argument3, function (err) {
       console.log(" ✅  created: ".cyan + "README.md".white);
   });
 
+  fs.writeFile('spec.bundle.js', `/*
+* When testing with Webpack and ES6, we have to do some
+* preliminary setup. Because we are writing our tests also in ES6,
+* we must transpile those as well, which is handled inside
+* 'karma.conf.js' via the 'karma-webpack' plugin. This is the entry
+* file for the Webpack tests. Similarly to how Webpack creates a
+* 'bundle.js' file for the compressed app source files, when we
+* run our tests, Webpack, likewise, compiles and bundles those tests here.
+*/
 
+import angular from 'angular';
+
+// Built by the core Angular team for mocking dependencies
+import mocks from 'angular-mocks';
+
+// We use the context method on 'require' which Webpack created
+// in order to signify which files we actually want to require or import.
+// Below, 'context' will be a/an function/object with file names as keys.
+// Using that regex, we scan within 'client/app' and target
+// all files ending with '.spec.js' and trace its path.
+// By passing in true, we permit this process to occur recursively.
+let context = require.context('./client/app', true, /\.spec\.js/);
+
+// Get all files, for each file, call the context function
+// that will require the file and load it here. Context will
+// loop and require those spec files here.
+context.keys().forEach(context);
+`, function(err) {
+    if(err) {
+        return console.log(` ❌  failed to generate due to error:  ${err}`);
+    }
+    console.log(" ✅  created: ".cyan + "spec.bundle.js".white);
+  });
+
+// generate webpack file
+  fs.writeFile('webpack.config.js', `module.exports = {
+devtool: 'sourcemap',
+output: {
+  filename: 'bundle.js'
+},
+module: {
+  loaders: [
+     { test: /\.js$/, exclude: [/app\/lib/, /node_modules/], loader: 'ng-annotate!babel' },
+     { test: /\.html$/, loader: 'raw' },
+     { test: /\.less$/, loader: 'style!css!less' },
+     { test: /\.css$/, loader: 'style!css' },
+     { test: /\.(ttf|otf|eot|svg|woff(2)?)$/, loader: 'url' }
+  ]
+}
+};
+`, function(err) {
+    if(err) {
+        return console.log(` ❌  failed to generate due to error:  ${err}`);
+    }
+    console.log(" ✅  created: ".cyan + "webpack.config.js".white);
+  });
+
+// generate karma file
+  fs.writeFile('karma.conf.js', `module.exports = function(config) {
+config.set({
+  basePath: '',
+  frameworks: ['jasmine'],
+  files: [{
+    pattern: 'spec.bundle.js',
+    watched: false
+  }],
+  exclude: [],
+  plugins: [
+    require("karma-jasmine"),
+    require("karma-phantomjs-launcher"),
+    require("karma-spec-reporter"),
+    require("karma-sourcemap-loader"),
+    require("karma-webpack")
+  ],
+  preprocessors: {
+    'spec.bundle.js': ['webpack', 'sourcemap']
+  },
+  webpack: {
+    devtool: 'inline-source-map',
+    module: {
+      loaders: [{
+        test: /\.js/,
+        exclude: [/app\/lib/, /node_modules/],
+        loader: 'babel'
+      }, {
+        test: /\.html/,
+        loader: 'raw'
+      }, {
+        test: /\.styl$/,
+        loader: 'style!css!stylus'
+      }, {
+        test: /\.css$/,
+        loader: 'style!css'
+      }]
+    }
+  },
+  webpackServer: {
+    noInfo: true // prevent console spamming when running in Karma!
+  },
+  reporters: ['spec'],
+  port: 9876,
+  colors: true,
+  logLevel: config.LOG_INFO,
+  autoWatch: false,
+  browsers: ['PhantomJS'],
+  singleRun: true
+});
+};
+`, function(err) {
+    if(err) {
+        return console.log(` ❌  failed to generate due to error:  ${err}`);
+    }
+    console.log(" ✅  created: ".cyan + "karma.conf.js".white);
+  });
+
+  // generate gulp file
+  fs.writeFile('gulpfile.babel.js', `
+  import gulp from 'gulp';
+  import path from 'path';
+  import webpack from 'webpack-stream';
+  const browserSync = require('browser-sync');
+
+  const reload = () => browserSync.reload();
+  const root = 'client';
+
+  // helper method for resolving paths
+  const resolveToApp = (glob) => {
+    glob = glob || '';
+    return path.join(root, 'app', glob); // app/{glob}
+  };
+
+  // map of all paths
+  const paths = {
+    js: resolveToApp('**/*!(.spec.js).js'), // exclude spec files
+    less: resolveToApp('**/*.less'), // stylesheets
+    html: [
+      resolveToApp('**/*.html'),
+      path.join(root, 'index.html')
+    ],
+    entry: path.join(root, 'app/app.js'),
+    output: root
+  };
+
+  gulp.task('webpack', () => {
+    return gulp.src(paths.entry)
+      .pipe(webpack(require('./webpack.config')))
+      .pipe(gulp.dest(paths.output));
+  });
+
+  gulp.task('reload', ['webpack'], (done) => {
+    reload();
+    done();
+  });
+
+  gulp.task('serve', ['webpack'], () => {
+    browserSync({
+      port: process.env.PORT || 3000,
+      open: false,
+      server: { baseDir: root }
+    });
+  });
+
+  gulp.task('watch', ['serve'], () => {
+    const allPaths = [].concat([paths.js], paths.html, [paths.less]);
+    gulp.watch(allPaths, ['reload']);
+  });
+
+  gulp.task('default', ['watch']);
+`, function(err) {
+    if(err) {
+        return console.log(` ❌  failed to generate due to error:  ${err}`);
+    }
+    console.log(" ✅  created: ".cyan + "gulpfile.babel.js".white);
+  });
 
   //generate package.json
   fs.writeFile("package.json", `{
@@ -216,177 +389,7 @@ mkdirp(argument3, function (err) {
       console.log(" ✅  created: ".cyan + "favicon.png".white);
     });
 
-    fs.writeFile('spec.bundle.js', `/*
- * When testing with Webpack and ES6, we have to do some
- * preliminary setup. Because we are writing our tests also in ES6,
- * we must transpile those as well, which is handled inside
- * 'karma.conf.js' via the 'karma-webpack' plugin. This is the entry
- * file for the Webpack tests. Similarly to how Webpack creates a
- * 'bundle.js' file for the compressed app source files, when we
- * run our tests, Webpack, likewise, compiles and bundles those tests here.
-*/
 
-import angular from 'angular';
-
-// Built by the core Angular team for mocking dependencies
-import mocks from 'angular-mocks';
-
-// We use the context method on 'require' which Webpack created
-// in order to signify which files we actually want to require or import.
-// Below, 'context' will be a/an function/object with file names as keys.
-// Using that regex, we scan within 'client/app' and target
-// all files ending with '.spec.js' and trace its path.
-// By passing in true, we permit this process to occur recursively.
-let context = require.context('./client/app', true, /\.spec\.js/);
-
-// Get all files, for each file, call the context function
-// that will require the file and load it here. Context will
-// loop and require those spec files here.
-context.keys().forEach(context);
-`, function(err) {
-      if(err) {
-          return console.log(` ❌  failed to generate due to error:  ${err}`);
-      }
-      console.log(" ✅  created: ".cyan + "spec.bundle.js".white);
-    });
-
-    fs.writeFile('webpack.config.js', `module.exports = {
-  devtool: 'sourcemap',
-  output: {
-    filename: 'bundle.js'
-  },
-  module: {
-    loaders: [
-       { test: /\.js$/, exclude: [/app\/lib/, /node_modules/], loader: 'ng-annotate!babel' },
-       { test: /\.html$/, loader: 'raw' },
-       { test: /\.less$/, loader: 'style!css!less' },
-       { test: /\.css$/, loader: 'style!css' },
-       { test: /\.(ttf|otf|eot|svg|woff(2)?)$/, loader: 'url' }
-    ]
-  }
-};
-`, function(err) {
-      if(err) {
-          return console.log(` ❌  failed to generate due to error:  ${err}`);
-      }
-      console.log(" ✅  created: ".cyan + "webpack.config.js".white);
-    });
-
-    fs.writeFile('karma.conf.js', `module.exports = function(config) {
-  config.set({
-    basePath: '',
-    frameworks: ['jasmine'],
-    files: [{
-      pattern: 'spec.bundle.js',
-      watched: false
-    }],
-    exclude: [],
-    plugins: [
-      require("karma-jasmine"),
-      require("karma-phantomjs-launcher"),
-      require("karma-spec-reporter"),
-      require("karma-sourcemap-loader"),
-      require("karma-webpack")
-    ],
-    preprocessors: {
-      'spec.bundle.js': ['webpack', 'sourcemap']
-    },
-    webpack: {
-      devtool: 'inline-source-map',
-      module: {
-        loaders: [{
-          test: /\.js/,
-          exclude: [/app\/lib/, /node_modules/],
-          loader: 'babel'
-        }, {
-          test: /\.html/,
-          loader: 'raw'
-        }, {
-          test: /\.styl$/,
-          loader: 'style!css!stylus'
-        }, {
-          test: /\.css$/,
-          loader: 'style!css'
-        }]
-      }
-    },
-    webpackServer: {
-      noInfo: true // prevent console spamming when running in Karma!
-    },
-    reporters: ['spec'],
-    port: 9876,
-    colors: true,
-    logLevel: config.LOG_INFO,
-    autoWatch: false,
-    browsers: ['PhantomJS'],
-    singleRun: true
-  });
-};
-`, function(err) {
-      if(err) {
-          return console.log(` ❌  failed to generate due to error:  ${err}`);
-      }
-      console.log(" ✅  created: ".cyan + "karma.conf.js".white);
-    });
-
-    fs.writeFile('gulpfile.babel.js', `
-    import gulp from 'gulp';
-    import path from 'path';
-    import webpack from 'webpack-stream';
-    const browserSync = require('browser-sync');
-
-    const reload = () => browserSync.reload();
-    const root = 'client';
-
-    // helper method for resolving paths
-    const resolveToApp = (glob) => {
-      glob = glob || '';
-      return path.join(root, 'app', glob); // app/{glob}
-    };
-
-    // map of all paths
-    const paths = {
-      js: resolveToApp('**/*!(.spec.js).js'), // exclude spec files
-      less: resolveToApp('**/*.less'), // stylesheets
-      html: [
-        resolveToApp('**/*.html'),
-        path.join(root, 'index.html')
-      ],
-      entry: path.join(root, 'app/app.js'),
-      output: root
-    };
-
-    gulp.task('webpack', () => {
-      return gulp.src(paths.entry)
-        .pipe(webpack(require('./webpack.config')))
-        .pipe(gulp.dest(paths.output));
-    });
-
-    gulp.task('reload', ['webpack'], (done) => {
-      reload();
-      done();
-    });
-
-    gulp.task('serve', ['webpack'], () => {
-      browserSync({
-        port: process.env.PORT || 3000,
-        open: false,
-        server: { baseDir: root }
-      });
-    });
-
-    gulp.task('watch', ['serve'], () => {
-      const allPaths = [].concat([paths.js], paths.html, [paths.less]);
-      gulp.watch(allPaths, ['reload']);
-    });
-
-    gulp.task('default', ['watch']);
-`, function(err) {
-      if(err) {
-          return console.log(` ❌  failed to generate due to error:  ${err}`);
-      }
-      console.log(" ✅  created: ".cyan + "gulpfile.babel.js".white);
-    });
 
 
     // generate index.html
