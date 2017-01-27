@@ -1,10 +1,10 @@
 {
   "name": "angular-1.5-cli",
-  "version": "1.1.2",
-  "description": "A cli for Angular 1.5. Component generator.",
+  "version": "1.1.4",
+  "description": "A cli for Angular 1.5.",
   "main": "index.js",
   "scripts": {
-    "test": "ag n c"
+    "build": "gulp"
   },
   "repository": {
     "type": "git",
@@ -12,7 +12,8 @@
   },
   "keywords": [
     "Angular",
-    "CLI"
+    "CLI",
+    "Angular.js"
   ],
   "author": "Andrew Wormald",
   "license": "MIT",
