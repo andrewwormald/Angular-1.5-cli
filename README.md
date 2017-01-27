@@ -1,3 +1,4 @@
+![alt text](https://angular.io/resources/images/logos/angular2/angular.svg "Logo Title Text 1")
 # ANGULAR-1.5-CLI
 ___________
 ###### created by  Andrew Wormald
