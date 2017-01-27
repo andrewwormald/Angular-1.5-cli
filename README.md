@@ -11,6 +11,8 @@ npm install angular-1.5-cli -g
 ```
 You need to install this globally (aka using `-g` at the end) in order for this to work efficiently and enhance your experience.
 
+___________
+
 ### Commands:
 
 #### Generate Project:
@@ -25,11 +27,17 @@ gen new {{PROJECT NAME}} --style:css
 
  // Generates a new project using css styling
  ```
+
+
 #### Generate Component:
 ###### Step 1:
-Navigate to components directory/folder
+Navigate to components directory/folder.
+
+
 ###### Step 2:
 Use the command line `gen {{COMPONENT NAME}}` or any of the below command lines.
+
+
 
 ```javascript
 gen {{COMPONENT NAME}}
@@ -42,3 +50,4 @@ gen {{COMPONENT NAME}} --style:css
 
 // Generates a new component using css styling
 ```
+___________
