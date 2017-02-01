@@ -4,11 +4,46 @@ var touch = require('touch');
 var fs = require('fs-extra')
 var process = require('process');
 var colors = require('colors');
+var prompt = require('prompt');
+var scriptName = 'app';
+var request = require('request');
+var packagejson = require('./package.json');
+var cmd = require('node-cmd');
 var value = process.argv[2];
 var argument3 = process.argv[3];
 var argument4 = process.argv[4];
-var scriptName = 'app';
-var request = require('request');
+
+
+//
+//on init run genScript
+initScript();
+//
+//
+
+function initScript(){
+  genScript()
+  setTimeout(function(){
+    console.log('installing npm modules...');
+  }, 1500);
+  installModules();
+}
+
+function installModules(){
+  cmd.get(
+        `
+            cd ${argument3}
+            npm set progress=false
+            npm i
+        `,
+        function(data){
+            console.log('installation of npm modules complete!');
+        }
+    );
+}
+
+//declaring script as function in order to re-execute the script
+function genScript(){
+
 //spilt 'gen new' from 'gen {{COMPONENT NAME}}'
 if (value === 'new') {
 // generate a brand new project with the name
@@ -19,45 +54,41 @@ mkdirp(argument3, function (err) {
   process.chdir(argument3),
 
   //generte .gitignore
-  fs.writeFile(".gitignore", `
-  .DS_Store
-  .tmp
-  .git
-  node_modules
-  .settings
-  *.log
-  client/bundle.js
-  client/bundle.js.map
-  .idea
-` , function(err) {
+  fs.writeFile(".gitignore", `.DS_Store
+.tmp
+.git
+node_modules
+.settings
+*.log
+client/bundle.js
+client/bundle.js.map
+.idea` , function(err) {
       if(err) {
           return console.log(` ❌  failed to generate due to error:  ${err}`);
       }
-      console.log(" ✅  created: ".cyan + ".gitignore".white);
+      console.log(" 🎁  created: ".cyan + ".gitignore".white);
   });
 
   //generte webpack.config.js
-  fs.writeFile("webpack.config.js", `
-  module.exports = {
+  fs.writeFile("webpack.config.js", `module.exports = {
   devtool: 'sourcemap',
   output: {
     filename: 'bundle.js'
   },
   module: {
     loaders: [
-       { test: /\.js$/, exclude: [/app\/lib/, /node_modules/], loader: 'ng-annotate!babel' },
-       { test: /\.html$/, loader: 'raw' },
-       { test: /\.less$/, loader: 'style!css!less' },
-       { test: /\.css$/, loader: 'style!css' },
-       { test: /\.(ttf|otf|eot|svg|woff(2)?)$/, loader: 'url' }
+      { test: /\\.js$/, exclude: [/app\\/lib/, /node_modules/], loader: 'ng-annotate!babel' },
+      { test: /\\.html$/, loader: 'raw' },
+      {test: /\\.scss$/,loader: 'style!css!sass'},
+      { test: /\\.css$/, loader: 'style!css' },
+      { test: /\\.(ttf|otf|eot|svg|woff(2)?)$/, loader: 'url' }
     ]
   }
-};
-` , function(err) {
+};` , function(err) {
       if(err) {
           return console.log(` ❌  failed to generate due to error:  ${err}`);
       }
-      console.log(" ✅  created: ".cyan + "webpack.config.js".white);
+      console.log(" 🎁  created: ".cyan + "webpack.config.js".white);
   });
 
   //generte README.md
@@ -115,17 +146,17 @@ mkdirp(argument3, function (err) {
       if(err) {
           return console.log(` ❌  failed to generate due to error:  ${err}`);
       }
-      console.log(" ✅  created: ".cyan + "README.md".white);
+      console.log(" 🎁  created: ".cyan + "README.md".white);
   });
 
   fs.writeFile('spec.bundle.js', `/*
-* When testing with Webpack and ES6, we have to do some
-* preliminary setup. Because we are writing our tests also in ES6,
-* we must transpile those as well, which is handled inside
-* 'karma.conf.js' via the 'karma-webpack' plugin. This is the entry
-* file for the Webpack tests. Similarly to how Webpack creates a
-* 'bundle.js' file for the compressed app source files, when we
-* run our tests, Webpack, likewise, compiles and bundles those tests here.
+ * When testing with Webpack and ES6, we have to do some
+ * preliminary setup. Because we are writing our tests also in ES6,
+ * we must transpile those as well, which is handled inside
+ * 'karma.conf.js' via the 'karma-webpack' plugin. This is the entry
+ * file for the Webpack tests. Similarly to how Webpack creates a
+ * 'bundle.js' file for the compressed app source files, when we
+ * run our tests, Webpack, likewise, compiles and bundles those tests here.
 */
 
 import angular from 'angular';
@@ -139,7 +170,7 @@ import mocks from 'angular-mocks';
 // Using that regex, we scan within 'client/app' and target
 // all files ending with '.spec.js' and trace its path.
 // By passing in true, we permit this process to occur recursively.
-let context = require.context('./client/app', true, /\.spec\.js/);
+let context = require.context('./client/app', true, /\\.spec\\.js/);
 
 // Get all files, for each file, call the context function
 // that will require the file and load it here. Context will
@@ -149,31 +180,9 @@ context.keys().forEach(context);
     if(err) {
         return console.log(` ❌  failed to generate due to error:  ${err}`);
     }
-    console.log(" ✅  created: ".cyan + "spec.bundle.js".white);
+    console.log(" 🎁  created: ".cyan + "spec.bundle.js".white);
   });
 
-// generate webpack file
-  fs.writeFile('webpack.config.js', `module.exports = {
-devtool: 'sourcemap',
-output: {
-  filename: 'bundle.js'
-},
-module: {
-  loaders: [
-     { test: /\.js$/, exclude: [/app\/lib/, /node_modules/], loader: 'ng-annotate!babel' },
-     { test: /\.html$/, loader: 'raw' },
-     { test: /\.less$/, loader: 'style!css!less' },
-     { test: /\.css$/, loader: 'style!css' },
-     { test: /\.(ttf|otf|eot|svg|woff(2)?)$/, loader: 'url' }
-  ]
-}
-};
-`, function(err) {
-    if(err) {
-        return console.log(` ❌  failed to generate due to error:  ${err}`);
-    }
-    console.log(" ✅  created: ".cyan + "webpack.config.js".white);
-  });
 
 // generate karma file
   fs.writeFile('karma.conf.js', `module.exports = function(config) {
@@ -199,18 +208,18 @@ config.set({
     devtool: 'inline-source-map',
     module: {
       loaders: [{
-        test: /\.js/,
-        exclude: [/app\/lib/, /node_modules/],
+        test: /\\.js/,
+        exclude: [/app\\/lib/, /node_modules/],
         loader: 'babel'
       }, {
-        test: /\.html/,
+        test: /\\.html/,
         loader: 'raw'
       }, {
-        test: /\.styl$/,
+        test: /\\.styl$/,
         loader: 'style!css!stylus'
       }, {
-        test: /\.css$/,
-        loader: 'style!css'
+        test: /\\.scss$/,
+        loaders: ['style', 'css', 'sass']
       }]
     }
   },
@@ -230,67 +239,67 @@ config.set({
     if(err) {
         return console.log(` ❌  failed to generate due to error:  ${err}`);
     }
-    console.log(" ✅  created: ".cyan + "karma.conf.js".white);
+    console.log(" 🎁  created: ".cyan + "karma.conf.js".white);
   });
 
   // generate gulp file
-  fs.writeFile('gulpfile.babel.js', `
-  import gulp from 'gulp';
-  import path from 'path';
-  import webpack from 'webpack-stream';
-  const browserSync = require('browser-sync');
+  fs.writeFile('gulpfile.babel.js', `const gulp = require('gulp');
+const path = require('path');
+const webpack = require('webpack-stream');
+const browserSync = require('browser-sync');
 
-  const reload = () => browserSync.reload();
-  const root = 'client';
 
-  // helper method for resolving paths
-  const resolveToApp = (glob) => {
-    glob = glob || '';
-    return path.join(root, 'app', glob); // app/{glob}
-  };
+const reload = () => browserSync.reload();
+const root = 'client';
 
-  // map of all paths
-  const paths = {
-    js: resolveToApp('**/*!(.spec.js).js'), // exclude spec files
-    less: resolveToApp('**/*.less'), // stylesheets
-    html: [
-      resolveToApp('**/*.html'),
-      path.join(root, 'index.html')
-    ],
-    entry: path.join(root, 'app/app.js'),
-    output: root
-  };
+// helper method for resolving paths
+const resolveToApp = (glob) => {
+  glob = glob || '';
+  return path.join(root, 'app', glob); // app/{glob}
+};
 
-  gulp.task('webpack', () => {
-    return gulp.src(paths.entry)
-      .pipe(webpack(require('./webpack.config')))
-      .pipe(gulp.dest(paths.output));
+// map of all paths
+const paths = {
+  js: resolveToApp('**/*.component.js'), // exclude spec files
+  less: resolveToApp('**/*.component.less'), // stylesheets
+  html: [
+    resolveToApp('**/*.component.html'),
+    path.join(root, 'index.html')
+  ],
+  entry: path.join(root, 'app/app.module.js'),
+  output: root
+};
+
+gulp.task('webpack', () => {
+  return gulp.src(paths.entry)
+    .pipe(webpack(require('./webpack.config')))
+    .pipe(gulp.dest(paths.output));
+});
+
+gulp.task('reload', ['webpack'], (done) => {
+  reload();
+  done();
+});
+
+gulp.task('serve', ['webpack'], () => {
+  browserSync({
+    port: process.env.PORT || 3000,
+    open: false,
+    server: { baseDir: root }
   });
+});
 
-  gulp.task('reload', ['webpack'], (done) => {
-    reload();
-    done();
-  });
+gulp.task('watch', ['serve'], () => {
+  const allPaths = [].concat([paths.js], paths.html, [paths.less]);
+  gulp.watch(allPaths, ['reload']);
+});
 
-  gulp.task('serve', ['webpack'], () => {
-    browserSync({
-      port: process.env.PORT || 3000,
-      open: false,
-      server: { baseDir: root }
-    });
-  });
-
-  gulp.task('watch', ['serve'], () => {
-    const allPaths = [].concat([paths.js], paths.html, [paths.less]);
-    gulp.watch(allPaths, ['reload']);
-  });
-
-  gulp.task('default', ['watch']);
+gulp.task('default', ['watch']);
 `, function(err) {
     if(err) {
         return console.log(` ❌  failed to generate due to error:  ${err}`);
     }
-    console.log(" ✅  created: ".cyan + "gulpfile.babel.js".white);
+    console.log(" 🎁  created: ".cyan + "gulpfile.babel.js".white);
   });
 
   //generate package.json
@@ -314,7 +323,7 @@ config.set({
     "babel-loader": "6.2.4",
     "babel-preset-es2015": "^6.9.0",
     "browser-sync": "2.13.0",
-    "css-loader": "0.23.1",
+    "css-loader": "^0.23.1",
     "file-loader": "0.9.0",
     "fs-walk": "0.0.1",
     "gulp": "3.9.1",
@@ -332,10 +341,12 @@ config.set({
     "less-loader": "^2.2.3",
     "ng-annotate-loader": "0.1.0",
     "node-libs-browser": "1.0.0",
+    "node-sass": "^4.4.0",
     "phantomjs-prebuilt": "2.1.7",
     "raw-loader": "0.5.1",
     "run-sequence": "1.2.1",
-    "style-loader": "0.13.1",
+    "sass-loader": "^4.1.1",
+    "style-loader": "^0.13.1",
     "url-loader": "0.5.7",
     "webpack": "1.13.1",
     "webpack-stream": "3.2.0",
@@ -349,22 +360,38 @@ config.set({
     "angular",
     "webpack",
     "es6"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SwiftySpartan/Angular-1.5-cli"
+  },
+  "author": "Andrew Wormald",
+  "license": "MIT"
 }` , function(err) {
       if(err) {
           return console.log(` ❌  failed to generate due to error:  ${err}`);
       }
-      console.log(" ✅  created: ".cyan + "package.json".white);
+      console.log(" 🎁  created: ".cyan + "package.json".white);
   });
 
-  // generate src directory
-  mkdirp("src", function (err) {
+  //generate .bablerc
+  fs.writeFile(".babelrc", `{
+    "presets": [ "es2015"]
+  }` , function(err) {
+      if(err) {
+          return console.log(` ❌  failed to generate due to error:  ${err}`);
+      }
+      console.log(" 🎁  created: ".cyan + ".bablerc".white);
+  });
+
+  // generate client directory
+  mkdirp("client", function (err) {
     //within this directory create all the sub scripts (e.g. app.component.html)
-    process.chdir("src"),
+    process.chdir("client"),
 
     mkdirp("assets/img", function (err) {
-      console.log(" ✅  created: ".cyan + "src/assets".white);
-      console.log(" ✅  created: ".cyan + "src/assets/img".white);
+      console.log(" 🎁  created: ".cyan + "client/assets".white);
+      console.log(" 🎁  created: ".cyan + "client/assets/img".white);
     });
 
     //generate favicon.jpg using base 64
@@ -386,7 +413,7 @@ config.set({
       if(err) {
           return console.log(` ❌  failed to generate due to error:  ${err}`);
       }
-      console.log(" ✅  created: ".cyan + "favicon.png".white);
+      console.log(" 🎁  created: ".cyan + "favicon.png".white);
     });
 
 
@@ -420,7 +447,7 @@ config.set({
         if(err) {
             return console.log(` ❌  failed to generate due to error:  ${err}`);
         }
-        console.log(" ✅  created: ".cyan + "index.html".white);
+        console.log(" 🎁  created: ".cyan + "index.html".white);
     });
 
     mkdirp("app/components", function (err) {
@@ -441,7 +468,7 @@ config.set({
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
-          console.log(" ✅  created: ".cyan + "app/components/components.js".white);
+          console.log(" 🎁  created: ".cyan + "app/components/components.js".white);
       });
 
 
@@ -451,7 +478,7 @@ config.set({
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
-          console.log(" ✅  created: ".cyan + "src/".white + scriptName.white + ".component.html".white);
+          console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.html".white);
       });
 
       //build scss || css styling scripts
@@ -461,7 +488,7 @@ config.set({
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
-          console.log(" ✅  created: ".cyan + "src/".white + scriptName.white + ".component.css".white);
+          console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.css".white);
       });
       }else{
       // build component.scss
@@ -469,7 +496,7 @@ config.set({
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
-          console.log(" ✅  created: ".cyan + "src/".white + scriptName.white + ".component.scss".white);
+          console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.scss".white);
       });
       }
 
@@ -490,7 +517,7 @@ config.set({
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
-          console.log(" ✅  created: ".cyan + "src/".white + scriptName.white + ".component.js".white);
+          console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.js".white);
       });
       }else{
       // build component.js with import of scss folder
@@ -507,7 +534,7 @@ config.set({
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
-          console.log(" ✅  created: ".cyan + "src/".white + scriptName.white + ".component.js".white);
+          console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.js".white);
       });
       }
 
@@ -526,47 +553,23 @@ config.set({
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
-          console.log(" ✅  created: ".cyan + "src/".white + scriptName.white + ".module.js".white);
+          console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".module.js".white);
       });
 
     });
 
-  //
-  //   //generate favicon.jpg using base 64
-  //  data = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAZJJREFUOI3FU7FqVFEQPWfm7ttLEN5zt9oEWcVSRVCwSrd+gI2YLh+QWNikUxBLv0AQhC0WLFPZCN5CwQ8QE1KIIjbCLluE7Bbvzdi8B49ljUUKB6a4d86ZmXO4l+6uuEDIRcgAEAAYSV8tuLsAYH38G4YUkV13vwmgAVQkvxVF8W46nf5KKeloNHrk7rcBWItPkl8J4BBAKSIfakmZmd0FkOd5vj+fz7+HEO67+/XWEABAp9P5gbrBfrswGAw2ALwVkSfNquv0uztDs04bSPIMwG8Al9YR2xEAQEQuF0Wx1ev11MxERLbN7E6WZQeLxYJZlj0keWvVA1U9DgBgZjuz2exe3fAqgC+q+mw8Hn9OKSnJU5KzNSaeAsChiDzt9/ubeZ5fI/ma5KvhcBjdXdxdz/OgMfFxcxljvALgvYjsuTv/1SAAoIjQzODuSvJnCOFFWZYvY4xHy+UyhRAeiMiNVQndbvdEVPVNjPFTM8XddTKZfFTV52VZdlJKUhPLlayqqjLWxCbb0UwTnPeU//tv/ANmL7C1Gz8yDgAAAABJRU5ErkJggg==';
-   //
-  //   function decodeBase64Image(dataString) {
-  //     var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
-  //       response = {};
-  //     if (matches.length !== 3) {
-  //       return new Error('Invalid input string');
-  //     }
-  //     response.type = matches[1];
-  //     response.data = new Buffer(matches[2], 'base64');
-  //     return response;
-  //   }
-  //   imageBuffer = decodeBase64Image(data);
-   //
-  //   fs.writeFile('image.png', imageBuffer.data, function(err) {
-  //     if(err) {
-  //         return console.log(` ❌  failed to generate due to error:  ${err}`);
-  //     }
-  //     console.log(" ✅  created: ".cyan + "image.png".white);
-  //   });
-
-
   });
-  //making src directory and sub scripts should be last in the list as then you do not need to go back up a level in the directory ladder
+  //making client directory and sub scripts should be last in the list as then you do not need to go back up a level in the directory ladder
 });
 //argument 4 is now the styling order
 
 
-}else{
+}else if (value === '-c'){
   // GEN COMPONENT SCRIPT
   componentsArray = [];
   genArr = [];
-  // sync app.component with updates
 
+  // sync app.component with updates
   fs.readdir(process.cwd(), function(err, items) {
     genArr = items;
     generateDirectArray(genArr);
@@ -595,7 +598,7 @@ config.set({
   }
 
   function importStringGenerator(){
-    componentsArray.push(`${value}`);
+    componentsArray.push(`${argument3}`);
     genString = "";
     for (var i=0; i<componentsArray.length; i++) {
       genString = genString + `    import ${componentsArray[i].capitalizeFirstLetter()}Module from './${componentsArray[i]}/${componentsArray[i]}.component';\r`
@@ -631,49 +634,47 @@ ${listString}
   }
 
 
-
-
-  mkdirp(value, function (err) {
+  mkdirp(argument3, function (err) {
       console.log("Generating Component...".white)
       if (err) console.error(err)
       else
-      process.chdir(value),
+      process.chdir(argument3),
 
       //build component.html
-      fs.writeFile(value +".component.html", `<p> ${value} works! </p>` , function(err) {
+      fs.writeFile(argument3 +".component.html", `<p> ${argument3} works! </p>` , function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
-          console.log(" ✅  created: ".cyan + value.white + ".component.html".white);
+          console.log(" 🎁  created: ".cyan + argument3.white + ".component.html".white);
       });
 
       //build scss || css styling scripts
       if (argument3 === "--style:css" || argument4 === "--style:css") {
       // build component.css
-      fs.writeFile(value +".component.css", "", function(err) {
+      fs.writeFile(argument3 +".component.css", "", function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
-          console.log(" ✅  created: ".cyan + value.white + ".component.css".white);
+          console.log(" 🎁  created: ".cyan + argument3.white + ".component.css".white);
       });
       }else{
       // build component.scss
-      fs.writeFile(value +".component.scss", "//stlying folder is set to .scss by default. Should you want to use css rather, type: 'gen {{NAME OF COMPONENT HERE}} --style:css'.", function(err) {
+      fs.writeFile(argument3 +".component.scss", "//stlying folder is set to .scss by default. Should you want to use css rather, type: 'gen {{NAME OF COMPONENT HERE}} --style:css'.", function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
-          console.log(" ✅  created: ".cyan + value.white + ".component.scss".white);
+          console.log(" 🎁  created: ".cyan + argument3.white + ".component.scss".white);
       });
       }
 
 
       //build component.js
-      fs.writeFile(value +".component.js", `
-      import template from '${value}.component.html';
-      import controller from './${value}.controller.js';
-      import './${value}.component.scss';
+      fs.writeFile(argument3 +".component.js", `
+      import template from '${argument3}.component.html';
+      import controller from './${argument3}.controller.js';
+      import './${argument3}.component.scss';
 
-      let ${value}Component = {
+      let ${argument3}Component = {
         restrict: 'E',
         bindings: {},
         template,
@@ -681,30 +682,159 @@ ${listString}
         controllerAs: 'vm'
       };
 
-      export default ${value}Component;
+      export default ${argument3}Component;
 
       `, function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
-          console.log(" ✅  created: ".cyan + value.white + ".component.js".white);
+          console.log(" 🎁  created: ".cyan + argument3.white + ".component.js".white);
       });
 
       //build controller.js
-      fs.writeFile(value +".controller.js", `class ${value.toUpperCase()}Controller {
+      fs.writeFile(argument3 +".controller.js", `class ${argument3.toUpperCase()}Controller {
     constructor() {
-      this.name = '${value}';
+      this.name = '${argument3}';
     }
   }
 
-  export default ${value.toUpperCase()}Controller;`, function(err) {
+  export default ${argument3.toUpperCase()}Controller;`, function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
-          console.log(" ✅  created: ".cyan + value.white + ".controller.js".white);
+          console.log(" 🎁  created: ".cyan + argument3.white + ".controller.js".white);
       });
   });
 
 
 
+}else if (value === 'help' || value === '-help' || value === '--help' || value === '-h'){
+  // provide user with help
+  console.log(`
+    - gen new {{PROJECT NAME}}
+
+    - gen new {{PROJECT NAME}} --style:css
+        The default styling is set to SCSS.
+
+    - gen -c {{COMPONENT NAME}} --style:css
+        The default styling is set to SCSS.
+
+    - gen -c {{COMPONENT NAME}}
+
+    - gen v
+    - gen -v
+    - gen version
+    - gen --version
+        This reveals the current version number
+
+    - gen h
+    - gen -h
+    - gen help
+    - gen --version
+        This reveals the Angular-1.5-cli command list
+    `);
+}else if (value === 'v' || value === 'version' || value === '-v' || value === '--version'){
+  //provide user with version number
+  console.log(packagejson.version);
+}else{
+  //promt user to find out what they want to generate
+  console.log(`You can always type 'gen new {{PROJECT NAME}} for a new project or 'gen -c {{COMPONENT NAME}}'`.white);
+  prompt.start();
+
+  console.log(`Would you like to generate a 'project' or 'component' ?`.red);
+  prompt.get([{
+    name: 'type',
+    required: true
+  }], function (err, result) {
+  //
+  // Log the results.
+  //
+  if (result.type === `project` || result.type === `Project`) {
+    // user chose project
+    prompt.start();
+
+    prompt.get([{
+      name: 'name',
+      required: true
+    }], function (err, result) {
+    //
+    // Log the results.
+    //
+    var projectName = result.name
+    console.log(`Would you like to use 'scss or css'?`);
+    prompt.get([{
+      name: 'styling',
+      required: true
+    }], function (err, result) {
+    //
+    // Log the results.
+    //
+    var stylingVar = '';
+    if (result.styling === 'css'){
+      stylingVar = '--style:css'
+    }else{
+      stylingVar = '--style:scss'
+    }
+    console.log(`Generating project: ${projectName}`);
+
+     value = 'new';
+     argument3 = projectName;
+     argument4 = stylingVar;
+
+
+    //
+    //re-execute genScript with new values
+    genScript();
+    //
+    //
+
+    });
+  });
+}else if (result.type === `component` || result.type === `Component`){
+    // user chose component
+    prompt.start();
+
+    prompt.get([{
+      name: 'name',
+      required: true
+    }], function (err, result) {
+    //
+    // Log the results.
+    //
+    var projectName = result.name
+     console.log(`Would you like to use 'scss or css'?`);
+     prompt.get([{
+       name: 'styling',
+       required: true
+     }], function (err, result) {
+     //
+     // Log the results.
+     //
+     var stylingVar = '';
+     if (result.styling === 'css'){
+       stylingVar = '--style:css'
+     }else{
+       stylingVar = '--style:scss'
+     }
+     console.log(`Generating component: ${projectName}`);
+
+      value = '-c';
+      argument3 = projectName;
+      argument4 = stylingVar;
+
+     //
+     //re-execute genScript with new values
+     genScript();
+     //
+     //
+
+     });
+
+  });
+  }else{
+    console.log(`Please try again. Unfortunately I do not understand what you would like me to do for you...`.red);
+  }
+});
 }
+//end of genScript
+};

@@ -40,14 +40,34 @@ Use the command line `gen {{COMPONENT NAME}}` or any of the below command lines.
 
 
 ```javascript
-gen {{COMPONENT NAME}}
+gen -c {{COMPONENT NAME}}
 
 // Generates a new component using scss styling
 ```
 
 ```javascript
-gen {{COMPONENT NAME}} --style:css
+gen -c {{COMPONENT NAME}} --style:css
 
 // Generates a new component using css styling
+```
+
+#### Version Number:
+```javascript
+gen v
+gen -v
+gen version
+gen --version  
+
+// Retrieves the Angular-1.5-cli version number
+```
+
+#### Help:
+```javascript
+gen h
+gen -h
+gen help
+gen --version  
+
+// Retrieves the Angular-1.5-cli command list
 ```
 ___________
