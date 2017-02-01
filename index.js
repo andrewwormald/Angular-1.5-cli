@@ -32,7 +32,6 @@ function installModules(){
   cmd.get(
         `
             cd ${argument3}
-            npm set progress=false
             npm i
         `,
         function(data){
@@ -484,7 +483,11 @@ gulp.task('default', ['watch']);
       //build scss || css styling scripts
       if (argument3 === "--style:css" || argument4 === "--style:css") {
       // build component.css
-      fs.writeFile(scriptName +".component.css", "", function(err) {
+      fs.writeFile(scriptName +".component.css", `body {
+        background-color: #212121;
+        color: white;
+        font-size: 38px;
+      }`, function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
@@ -492,7 +495,11 @@ gulp.task('default', ['watch']);
       });
       }else{
       // build component.scss
-      fs.writeFile(scriptName +".component.scss", "//stlying folder is set to .scss by default. Should you want to use css rather, type: 'gen {{NAME OF COMPONENT HERE}} --style:css'.", function(err) {
+      fs.writeFile(scriptName +".component.scss", `body {
+        background-color: #212121;
+        color: white;
+        font-size: 38px;
+      }`, function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
@@ -505,8 +512,8 @@ gulp.task('default', ['watch']);
       if (argument3 === "--style:css" || argument4 === "--style:css") {
       // build component.js with import of css folder
       fs.writeFile(scriptName +".component.js", `
-      import template from './app.html';
-      import './app.component.css';
+      import template from './app.component.html';
+      import './app.component.scss';
 
       const AppComponent = {
         template
@@ -641,7 +648,7 @@ ${listString}
       process.chdir(argument3),
 
       //build component.html
-      fs.writeFile(argument3 +".component.html", `<p> ${argument3} works! </p>` , function(err) {
+      fs.writeFile(argument3 +".component.html", `<h1> ${argument3} app works! </h1>` , function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
@@ -659,7 +666,7 @@ ${listString}
       });
       }else{
       // build component.scss
-      fs.writeFile(argument3 +".component.scss", "//stlying folder is set to .scss by default. Should you want to use css rather, type: 'gen {{NAME OF COMPONENT HERE}} --style:css'.", function(err) {
+      fs.writeFile(argument3 +".component.scss", "", function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
