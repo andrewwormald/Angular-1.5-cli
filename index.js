@@ -162,15 +162,7 @@ module.exports = {
 
 
   #### Generate Component:
-  ###### Step 1:
-  Navigate to components directory/folder.
-
-
-  ###### Step 2:
-  Use the command line gen {{COMPONENT NAME}} or any of the below command lines.
-
-
-
+  Make sure that you are at the base of the project directory
 
   gen {{COMPONENT NAME}}
 
@@ -339,6 +331,7 @@ config.set({
     "yargs": "4.7.1"
   },
   "scripts": {
+    "serve": "webpack && webpack-dev-server --content-base client/",
     "Serve": "webpack && webpack-dev-server --content-base client/",
     "Create Component": "gen comp"
   },
@@ -480,10 +473,53 @@ config.set({
 
 
       //build component.html
-      fs.writeFile(`${scriptName}.component.html`, `<div class=".container">
+      fs.writeFile(`${scriptName}.component.html`, `<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
+      <div class="container">
     <img src="https://raw.githubusercontent.com/SwiftySpartan/Angular-1.5-cli/master/canvas1.png" class=".img-responsive center-block">
-    <p>Welcome to Angular-1.5-cli</p>
-</div>` , function(err) {
+    <p>Angular-1.5-cli</p>
+</div>
+<div class="container-fluid main">
+  <div class="col-md-1 littleGuy">
+    <h1>Welcome</h1>
+    <p>
+      Welcome to Angular-1.5-cli! We hope you enjoy the CLI that will aid you in effecient web app development.
+    </p>
+  </div>
+  <div class="col-md-1 littleGuy">
+    <h1>Commands</h1>
+    <p>Generate Project:
+
+gen new {{PROJECT NAME}}<br>
+Generates a new project using scss styling <br><br>
+
+gen new {{PROJECT NAME}} --style:css <br>
+Generates a new project using css styling <br><br>
+
+gen -c {{COMPONENT NAME}} <br>
+Generates a new component using scss styling <br><br>
+
+gen -c {{COMPONENT NAME}} --style:css <br>
+Generates a new component using css styling <br><br>
+</p>
+  </div>
+  <div class="col-md-1 littleGuy">
+    <h1>Help</h1>
+    <p>
+      gen h <br>
+      gen -h <br>
+      gen help <br>
+      gen --help <br>
+    </p>
+  </div>
+  <div class="col-md-1 littleGuy">
+    <h1>Issues</h1>
+    <p>
+        Please report any issues on github: <br>
+        https://github.com/SwiftySpartan/Angular-1.5-cli/issues
+    </p>
+  </div>
+</div>
+` , function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
@@ -493,19 +529,52 @@ config.set({
       //build scss || css styling scripts
       if (argument3 === "--style:css" || argument4 === "--style:css") {
       // build component.css
-      fs.writeFile(scriptName +".component.css", `body {
+      fs.writeFile(scriptName +".component.css", `
+
+body {
         background-color: #212121;
         color: white;
         font-size: 38px;
-      }
+}
 
 .container {
   display: block;
   width: 100%;
-  p {
-    text-align: center;
-  }
-}`, function(err) {
+}
+
+.container p {
+  text-align: center;
+  font-family: 'Open Sans Condensed', sans-serif;
+}
+
+
+.main{
+background-color: #C3002F;
+}
+.main .littleGuy{
+    background-color: #DD0031;
+    width: 300px;
+    height: 350px;
+    position: relative;
+    margin-left: 30px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: block;
+    text-overflow: ellipsis;
+}
+
+.main .littleGuy h1 {
+  font-size: 20px;
+  font-family: 'Open Sans Condensed', sans-serif;
+}
+
+.main .littleGuy p {
+  font-size: 17px;
+  font-family: 'Open Sans Condensed', sans-serif;
+}
+`, function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
@@ -513,7 +582,10 @@ config.set({
       });
       }else{
       // build component.scss
-      fs.writeFile(scriptName +".component.scss", `body {
+      fs.writeFile(scriptName +".component.scss", `@import url('https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300');
+@import url('https://fonts.googleapis.com/css?family=Titillium+Web:700');
+
+body {
         background-color: #212121;
         color: white;
         font-size: 38px;
@@ -524,8 +596,37 @@ config.set({
   width: 100%;
   p {
     text-align: center;
+    font-family: 'Open Sans Condensed', sans-serif;
   }
-}`, function(err) {
+}
+.main{
+background-color: #C3002F;
+
+  .littleGuy{
+    background-color: #DD0031;
+    width: 300px;
+    height: 350px;
+    position: relative;
+    margin-left: 30px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: block;
+    text-overflow: ellipsis;
+    h1 {
+      font-size: 20px;
+      font-family: 'Open Sans Condensed', sans-serif;
+
+    }
+
+    p {
+      font-size: 17px;
+      font-family: 'Open Sans Condensed', sans-serif;
+    }
+  }
+}
+`, function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
