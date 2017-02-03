@@ -339,7 +339,7 @@ config.set({
     "yargs": "4.7.1"
   },
   "scripts": {
-    "Serve": "gen serve",
+    "Serve": "webpack && webpack-dev-server --content-base client/",
     "Create Component": "gen comp"
   },
   "keywords": [
@@ -802,6 +802,61 @@ export default ${argument3}Module;`, function(err) {
 }else if (value === 'v' || value === 'version' || value === '-v' || value === '--version'){
   //provide user with version number
   console.log(packagejson.version);
+}else if (value === "serve" || value ==="comp") {
+  if (value === "serve"){
+    console.log('serving angular 1.5 app...');
+    cmd.get(
+        `
+                webpack && webpack-dev-server --content-base client/
+            `,
+        function(data){
+
+        }
+    );
+
+  }else if (value === "comp"){
+
+    // user chose component
+    prompt.start();
+
+    prompt.get([{
+        name: 'name',
+        required: true
+    }], function (err, result) {
+        //
+        // Log the results.
+        //
+        var projectName = result.name
+        console.log(`Would you like to use 'scss or css'?`);
+        prompt.get([{
+            name: 'styling',
+            required: true
+        }], function (err, result) {
+            //
+            // Log the results.
+            //
+            var stylingVar = '';
+            if (result.styling === 'css'){
+                stylingVar = '--style:css'
+            }else{
+                stylingVar = '--style:scss'
+            }
+            console.log(`Generating component: ${projectName}`);
+
+            value = '-c';
+            argument3 = projectName;
+            argument4 = stylingVar;
+
+            //
+            //re-execute genScript with new values
+            genScript();
+            //
+            //
+
+        });
+
+    });
+  }
 }else{
   //promt user to find out what they want to generate
   console.log(`You can always type 'gen new {{PROJECT NAME}} for a new project or 'gen -c {{COMPONENT NAME}}'`.white);
