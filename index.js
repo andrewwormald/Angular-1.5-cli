@@ -20,12 +20,15 @@ initScript();
 //
 //
 
+
 function initScript(){
   genScript()
-  setTimeout(function(){
-    console.log('installing npm modules...');
-  }, 1500);
-  installModules();
+    if (value === 'new') {
+        setTimeout(function () {
+            console.log('installing npm modules...');
+        }, 1500);
+        installModules();
+    }
 }
 
 function installModules(){
@@ -69,21 +72,60 @@ client/bundle.js.map
   });
 
   //generte webpack.config.js
-  fs.writeFile("webpack.config.js", `module.exports = {
-  devtool: 'sourcemap',
+  fs.writeFile("webpack.config.js", `var path = require('path'),
+    webpack = require("webpack"),
+    libPath = path.join(__dirname, 'client'),
+    wwwPath = path.join(__dirname, 'dist'),
+    pkg = require('./package.json'),
+    HtmlWebpackPlugin = require('html-webpack-plugin');
+
+
+const isDev = process.env.NODE_ENV !== 'production';
+
+module.exports = {
+  entry: path.join(libPath, '/app/app.module.js'),
   output: {
-    filename: 'bundle.js'
+    path: path.join(wwwPath),
+    filename: isDev ? 'bundle.js' : 'bundle.[chunkHash].js'
   },
   module: {
-    loaders: [
-      { test: /\\.js$/, exclude: [/app\\/lib/, /node_modules/], loader: 'ng-annotate!babel' },
-      { test: /\\.html$/, loader: 'raw' },
-      {test: /\\.scss$/,loader: 'style!css!sass'},
-      { test: /\\.css$/, loader: 'style!css' },
-      { test: /\\.(ttf|otf|eot|svg|woff(2)?)$/, loader: 'url' }
-    ]
-  }
-};` , function(err) {
+    loaders: [{
+      test: /\\.html$/, loader: 'raw'
+    }, {
+      test: /\\.(png|jpg)$/,
+      loader: 'file?name=img/[name].[ext]' // inline base64 URLs for <=10kb images, direct URLs for the rest
+    },{
+      test: /\\.scss$/,loader: 'style!css!sass'
+    }, {
+      test: /\\.css$/, loader: 'style!css'
+    }, {
+      test: /\\.js$/,
+      exclude: /(node_modules)/,
+      loader: "ng-annotate?add=true!babel"
+    }, {
+      test: [/fontawesome-webfont\\.svg/, /fontawesome-webfont\\.eot/, /fontawesome-webfont\\.ttf/, /fontawesome-webfont\\.woff/, /fontawesome-webfont\\.woff2/],
+      loader: 'file?name=fonts/[name].[ext]'
+    },
+      { test: /\\.(ttf|otf|eot|svg|woff(2)?)$/, loader: 'url' }]
+  },
+  plugins: [
+
+    // HtmlWebpackPlugin: Simplifies creation of HTML files to serve your webpack bundles : https://www.npmjs.com/package/html-webpack-plugin
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      pkg: pkg,
+      template: path.join(libPath, 'index.ejs'),
+      inject: true
+    }),
+
+    // OccurenceOrderPlugin: Assign the module and chunk ids by occurrence count. : https://webpack.github.io/docs/list-of-plugins.html#occurenceorderplugin
+    new webpack.optimize.OccurenceOrderPlugin(),
+
+    // Deduplication: find duplicate dependencies & prevents duplicate inclusion : https://github.com/webpack/docs/wiki/optimization#deduplication
+    new webpack.optimize.DedupePlugin()
+  ]
+};
+` , function(err) {
       if(err) {
           return console.log(` ❌  failed to generate due to error:  ${err}`);
       }
@@ -241,65 +283,7 @@ config.set({
     console.log(" 🎁  created: ".cyan + "karma.conf.js".white);
   });
 
-  // generate gulp file
-  fs.writeFile('gulpfile.babel.js', `const gulp = require('gulp');
-const path = require('path');
-const webpack = require('webpack-stream');
-const browserSync = require('browser-sync');
 
-
-const reload = () => browserSync.reload();
-const root = 'client';
-
-// helper method for resolving paths
-const resolveToApp = (glob) => {
-  glob = glob || '';
-  return path.join(root, 'app', glob); // app/{glob}
-};
-
-// map of all paths
-const paths = {
-  js: resolveToApp('**/*.component.js'), // exclude spec files
-  less: resolveToApp('**/*.component.less'), // stylesheets
-  html: [
-    resolveToApp('**/*.component.html'),
-    path.join(root, 'index.html')
-  ],
-  entry: path.join(root, 'app/app.module.js'),
-  output: root
-};
-
-gulp.task('webpack', () => {
-  return gulp.src(paths.entry)
-    .pipe(webpack(require('./webpack.config')))
-    .pipe(gulp.dest(paths.output));
-});
-
-gulp.task('reload', ['webpack'], (done) => {
-  reload();
-  done();
-});
-
-gulp.task('serve', ['webpack'], () => {
-  browserSync({
-    port: process.env.PORT || 3000,
-    open: false,
-    server: { baseDir: root }
-  });
-});
-
-gulp.task('watch', ['serve'], () => {
-  const allPaths = [].concat([paths.js], paths.html, [paths.less]);
-  gulp.watch(allPaths, ['reload']);
-});
-
-gulp.task('default', ['watch']);
-`, function(err) {
-    if(err) {
-        return console.log(` ❌  failed to generate due to error:  ${err}`);
-    }
-    console.log(" 🎁  created: ".cyan + "gulpfile.babel.js".white);
-  });
 
   //generate package.json
   fs.writeFile("package.json", `{
@@ -322,12 +306,14 @@ gulp.task('default', ['watch']);
     "babel-loader": "6.2.4",
     "babel-preset-es2015": "^6.9.0",
     "browser-sync": "2.13.0",
+    "browser-sync-webpack-plugin": "^1.1.4",
     "css-loader": "^0.23.1",
     "file-loader": "0.9.0",
     "fs-walk": "0.0.1",
     "gulp": "3.9.1",
     "gulp-rename": "1.2.2",
     "gulp-template": "4.0.0",
+    "html-webpack-plugin": "^2.28.0",
     "jasmine": "2.4.1",
     "jasmine-core": "2.4.1",
     "karma": "1.1.0",
@@ -348,12 +334,13 @@ gulp.task('default', ['watch']);
     "style-loader": "^0.13.1",
     "url-loader": "0.5.7",
     "webpack": "1.13.1",
+    "webpack-dev-server": "^1.16.3",
     "webpack-stream": "3.2.0",
     "yargs": "4.7.1"
   },
   "scripts": {
-    "start": "gulp",
-    "test": "karma start"
+    "Serve": "gen serve",
+    "Create Component": "gen comp"
   },
   "keywords": [
     "angular",
@@ -415,7 +402,28 @@ gulp.task('default', ['watch']);
       console.log(" 🎁  created: ".cyan + "favicon.png".white);
     });
 
+      //generate index.ejs file
+      fs.writeFile(`index.ejs`,`<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title><%- htmlWebpackPlugin.options.pkg.title %></title>
+</head>
+<body ng-app="app" ng-strict-di ng-cloak>
+    <app>
+        Loading...
+    </app>
+</body>
+<!-- {%= o.htmlWebpackPlugin.options.pkg.name + ' v' + o.htmlWebpackPlugin.options.pkg.version + ' built on ' + new Date() %} -->
+</html>`, function(err){
 
+          if(err) {
+              return console.log(` ❌  failed to generate due to error:  ${err}`);
+          }
+          console.log(" 🎁  created: ".cyan + "index.ejs".white);
+
+      });
 
 
     // generate index.html
@@ -424,12 +432,12 @@ gulp.task('default', ['watch']);
       <html lang="en">
         <head>
           <meta charset="utf-8">
-          <title>Eggly | Angular with ES6</title>
+          <title>Welcome | Angular-1.5-cli</title>
           <meta name="viewport" content="width=device-width, initial-scale=1">
           <meta name="mobile-web-app-capable" content="yes">
           <meta name="apple-mobile-web-app-capable" content="yes">
           <meta name="apple-mobile-web-app-status-bar-style" content="black">
-          <meta name="description" content="A bookmark manager built with AngularJS, and ES6">
+          <meta name="description" content="A cli for Angular 1.5">
           <link rel="icon" href="favicon.jpg">
           <base href="/">
         </head>
@@ -471,9 +479,11 @@ gulp.task('default', ['watch']);
       });
 
 
-
       //build component.html
-      fs.writeFile(`${scriptName}.component.html`, `<p> ${scriptName} works! </p>` , function(err) {
+      fs.writeFile(`${scriptName}.component.html`, `<div class=".container">
+    <img src="https://raw.githubusercontent.com/SwiftySpartan/Angular-1.5-cli/master/canvas1.png" class=".img-responsive center-block">
+    <p>Welcome to Angular-1.5-cli</p>
+</div>` , function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
@@ -487,7 +497,15 @@ gulp.task('default', ['watch']);
         background-color: #212121;
         color: white;
         font-size: 38px;
-      }`, function(err) {
+      }
+
+.container {
+  display: block;
+  width: 100%;
+  p {
+    text-align: center;
+  }
+}`, function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
@@ -499,7 +517,15 @@ gulp.task('default', ['watch']);
         background-color: #212121;
         color: white;
         font-size: 38px;
-      }`, function(err) {
+      }
+
+.container {
+  display: block;
+  width: 100%;
+  p {
+    text-align: center;
+  }
+}`, function(err) {
           if(err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
@@ -551,9 +577,10 @@ gulp.task('default', ['watch']);
       import 'normalize.css';
       import angular from 'angular';
       import appComponent from './app.component';;
+      import ComponentsModule from './components/components';
 
       angular.module('app', [
-
+          ComponentsModule.name
         ])
         .component('app', appComponent);
         `, function(err) {
@@ -572,57 +599,76 @@ gulp.task('default', ['watch']);
 
 
 }else if (value === '-c'){
-  // GEN COMPONENT SCRIPT
-  componentsArray = [];
-  genArr = [];
 
-  // sync app.component with updates
-  fs.readdir(process.cwd(), function(err, items) {
-    genArr = items;
-    generateDirectArray(genArr);
-  });
+    //go to components directory
+    const rootBase = __dirname
+
+    process.chdir(`./client/app/components`);
+    // GEN COMPONENT SCRIPT
+    componentsArray = [];
+    genArr = [];
 
 
-  function generateDirectArray(items) {
-    for (var i=0; i<items.length; i++) {
-      if (isDirectory(items[i])){
-      }else{
-        componentsArray.push(items[i]);
-      }
-    }
-    importStringGenerator();
-  }
 
-  function isDirectory(inputString) {
-    var str = inputString;
-    var patt = new RegExp("[.]");
-    var res = patt.test(str);
-    return res;
-}
-
-  String.prototype.capitalizeFirstLetter = function() {
-    return this.charAt(0).toUpperCase() + this.slice(1);
-  }
-
-  function importStringGenerator(){
-    componentsArray.push(`${argument3}`);
-    genString = "";
-    for (var i=0; i<componentsArray.length; i++) {
-      genString = genString + `    import ${componentsArray[i].capitalizeFirstLetter()}Module from './${componentsArray[i]}/${componentsArray[i]}.component';\r`
-    }
-    listString = "";
-    for (var i=0; i<componentsArray.length; i++) {
-
-      // check if last in list in order to not include comma
-      if (i === (componentsArray.length - 1)){
-      listString = listString + `     ${componentsArray[i]}Module\r`
-      }else{
-      listString = listString + `     ${componentsArray[i]}Module,\r`
-      }
-
+    function camelize(str) {
+        return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+            return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+        }).replace(/\s+/g, '');
     }
 
-    fs.writeFile("components.js", `
+    value = camelize(`${value}`)
+    argument3 = camelize(`${argument3}`)
+    argument4 = camelize(`${argument4}`)
+
+    // sync app.component with updates
+    fs.readdir(process.cwd(), function(err, items) {
+        genArr = items;
+        generateDirectArray(genArr);
+    });
+
+
+    function generateDirectArray(items) {
+        for (var i=0; i<items.length; i++) {
+            if (isDirectory(items[i])){
+            }else{
+                componentsArray.push(items[i]);
+            }
+        }
+        importStringGenerator();
+    }
+
+    function isDirectory(inputString) {
+        var str = inputString;
+        var patt = new RegExp("[.]");
+        var res = patt.test(str);
+        return res;
+    }
+
+    String.prototype.capitalizeFirstLetter = function() {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+    }
+
+    function importStringGenerator(){
+        componentsArray.push(`${argument3}`);
+        genString = "";
+        for (var i=0; i<componentsArray.length; i++) {
+            genString = genString + `    import ${componentsArray[i].capitalizeFirstLetter()}Module from './${componentsArray[i]}/${componentsArray[i]}.module';\r`
+        }
+        listString = "";
+        for (var i=0; i<componentsArray.length; i++) {
+
+            // check if last in list in order to not include comma
+            if (i === (componentsArray.length - 1)){
+                listString = listString + `     ${componentsArray[i].capitalizeFirstLetter()}Module` + `.name \r`
+            }else{
+                listString = listString + `     ${componentsArray[i].capitalizeFirstLetter()}Module` + '.name, \r'
+            }
+
+        }
+
+
+
+        fs.writeFile("components.js", `
     import angular from 'angular';
 ${genString}
 
@@ -633,51 +679,51 @@ ${listString}
     export default ComponentsModule;
 
     `, function(err) {
-        if(err) {
-            return console.log(` ❌  failed to update due to error:  ${err}`);
+            if(err) {
+                return console.log(` ❌  failed to update due to error:  ${err}`);
+            }
+            console.log(" 🔰  updated: ".cyan + "components.js".white);
+        });
+    }
+
+
+    mkdirp(argument3, function (err) {
+        console.log("Generating Component...".white)
+        if (err) console.error(err)
+        else
+            process.chdir(argument3),
+
+                //build component.html
+                fs.writeFile(argument3 +".component.html", `<h1> ${argument3} works! </h1>` , function(err) {
+                    if(err) {
+                        return console.log(` ❌  failed to generate due to error:  ${err}`);
+                    }
+                    console.log(" 🎁  created: ".cyan + argument3.white + ".component.html".white);
+                });
+
+        //build scss || css styling scripts
+        if (argument3 === "--style:css" || argument4 === "--style:css") {
+            // build component.css
+            fs.writeFile(argument3 +".component.css", "", function(err) {
+                if(err) {
+                    return console.log(` ❌  failed to generate due to error:  ${err}`);
+                }
+                console.log(" 🎁  created: ".cyan + argument3.white + ".component.css".white);
+            });
+        }else{
+            // build component.scss
+            fs.writeFile(argument3 +".component.scss", "", function(err) {
+                if(err) {
+                    return console.log(` ❌  failed to generate due to error:  ${err}`);
+                }
+                console.log(" 🎁  created: ".cyan + argument3.white + ".component.scss".white);
+            });
         }
-        console.log(" 🔰  updated: ".cyan + "components.js".white);
-    });
-  }
 
 
-  mkdirp(argument3, function (err) {
-      console.log("Generating Component...".white)
-      if (err) console.error(err)
-      else
-      process.chdir(argument3),
-
-      //build component.html
-      fs.writeFile(argument3 +".component.html", `<h1> ${argument3} app works! </h1>` , function(err) {
-          if(err) {
-              return console.log(` ❌  failed to generate due to error:  ${err}`);
-          }
-          console.log(" 🎁  created: ".cyan + argument3.white + ".component.html".white);
-      });
-
-      //build scss || css styling scripts
-      if (argument3 === "--style:css" || argument4 === "--style:css") {
-      // build component.css
-      fs.writeFile(argument3 +".component.css", "", function(err) {
-          if(err) {
-              return console.log(` ❌  failed to generate due to error:  ${err}`);
-          }
-          console.log(" 🎁  created: ".cyan + argument3.white + ".component.css".white);
-      });
-      }else{
-      // build component.scss
-      fs.writeFile(argument3 +".component.scss", "", function(err) {
-          if(err) {
-              return console.log(` ❌  failed to generate due to error:  ${err}`);
-          }
-          console.log(" 🎁  created: ".cyan + argument3.white + ".component.scss".white);
-      });
-      }
-
-
-      //build component.js
-      fs.writeFile(argument3 +".component.js", `
-      import template from '${argument3}.component.html';
+        //build component.js
+        fs.writeFile(argument3 +".component.js", `
+      import template from './${argument3}.component.html';
       import controller from './${argument3}.controller.js';
       import './${argument3}.component.scss';
 
@@ -692,26 +738,39 @@ ${listString}
       export default ${argument3}Component;
 
       `, function(err) {
-          if(err) {
-              return console.log(` ❌  failed to generate due to error:  ${err}`);
-          }
-          console.log(" 🎁  created: ".cyan + argument3.white + ".component.js".white);
-      });
+            if(err) {
+                return console.log(` ❌  failed to generate due to error:  ${err}`);
+            }
+            console.log(" 🎁  created: ".cyan + argument3.white + ".component.js".white);
+        });
 
-      //build controller.js
-      fs.writeFile(argument3 +".controller.js", `class ${argument3.toUpperCase()}Controller {
+        //build module.js
+        fs.writeFile(argument3 +".module.js", `import angular from 'angular';
+import ${argument3}Component from './${argument3}.component';
+
+const ${argument3}Module = angular.module('${argument3}', [])
+  .component('${argument3}', ${argument3}Component);
+export default ${argument3}Module;`, function(err) {
+            if(err) {
+                return console.log(` ❌  failed to generate due to error:  ${err}`);
+            }
+            console.log(" 🎁  created: ".cyan + argument3.white + ".module.js".white);
+        });
+
+        //build controller.js
+        fs.writeFile(argument3 +".controller.js", `class ${argument3.toUpperCase()}Controller {
     constructor() {
       this.name = '${argument3}';
     }
   }
 
   export default ${argument3.toUpperCase()}Controller;`, function(err) {
-          if(err) {
-              return console.log(` ❌  failed to generate due to error:  ${err}`);
-          }
-          console.log(" 🎁  created: ".cyan + argument3.white + ".controller.js".white);
-      });
-  });
+            if(err) {
+                return console.log(` ❌  failed to generate due to error:  ${err}`);
+            }
+            console.log(" 🎁  created: ".cyan + argument3.white + ".controller.js".white);
+        });
+    });
 
 
 

@@ -11,6 +11,14 @@ npm install angular-1.5-cli -g
 ```
 You need to install this globally (aka using `-g` at the end) in order for this to work efficiently and enhance your experience.
 
+
+#### Future Development List for Angular-1.5-cli:
+<!-- ```javascript -->
+
+
+* Be able to generate directives
+
+<!-- ``` -->
 ___________
 
 ### Commands:
