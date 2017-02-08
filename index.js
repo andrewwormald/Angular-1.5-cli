@@ -833,7 +833,7 @@ ${listString}
         bindings: {},
         template,
         controller,
-        controllerAs: 'vm'
+        controllerAs: '${argument3}Controller'
       };
 
       export default ${argument3}Component;
