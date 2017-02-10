@@ -331,9 +331,9 @@ config.set({
     "yargs": "4.7.1"
   },
   "scripts": {
-    "serve": "webpack && webpack-dev-server --content-base client/",
-    "Serve": "webpack && webpack-dev-server --content-base client/",
-    "Create Component": "gen comp"
+    "start": "webpack && webpack-dev-server --content-base client/ --hot --inline",
+    "serve": "webpack && webpack-dev-server --content-base client/ --hot --inline",
+    "create Component": "gen comp"
   },
   "keywords": [
     "angular",
