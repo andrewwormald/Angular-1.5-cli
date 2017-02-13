@@ -846,11 +846,12 @@ ${listString}
         });
 
         //build module.js
+        var componentNameArgument = argument3.toLowerCase();
         fs.writeFile(argument3 +".module.js", `import angular from 'angular';
 import ${argument3}Component from './${argument3}.component';
 
-const ${argument3}Module = angular.module('${argument3}', [])
-  .component('${argument3}', ${argument3}Component);
+const ${argument3}Module = angular.module('${componentNameArgument}', [])
+  .component('${componentNameArgument}', ${argument3}Component);
 export default ${argument3}Module;`, function(err) {
             if(err) {
                 return console.log(` ❌  failed to generate due to error:  ${err}`);
