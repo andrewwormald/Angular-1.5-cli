@@ -824,17 +824,17 @@ ${listString}
 
         //build component.js
         fs.writeFile(argument3 +".component.js", `import template from './${argument3}.component.html';
-        import controller from './${argument3}.controller.js';
-        import './${argument3}.component.scss';
+import controller from './${argument3}.controller.js';
+import './${argument3}.component.scss';
 
-        let ${argument3}Component = {
-          restrict: 'E',
-          bindings: {},
-          template,
-          controller,
-          controllerAs: '${argument3}Controller'
-        };
-        export default ${argument3}Component;`, function(err) {
+let ${argument3}Component = {
+  restrict: 'E',
+  bindings: {},
+  template,
+  controller,
+  controllerAs: '${argument3}Controller'
+};
+export default ${argument3}Component;`, function(err) {
             if(err) {
                 return console.log(` ❌  failed to generate due to error:  ${err}`);
             }
