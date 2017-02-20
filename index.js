@@ -823,22 +823,18 @@ ${listString}
 
 
         //build component.js
-        fs.writeFile(argument3 +".component.js", `
-      import template from './${argument3}.component.html';
-      import controller from './${argument3}.controller.js';
-      import './${argument3}.component.scss';
+        fs.writeFile(argument3 +".component.js", `import template from './${argument3}.component.html';
+        import controller from './${argument3}.controller.js';
+        import './${argument3}.component.scss';
 
-      let ${argument3}Component = {
-        restrict: 'E',
-        bindings: {},
-        template,
-        controller,
-        controllerAs: '${argument3}Controller'
-      };
-
-      export default ${argument3}Component;
-
-      `, function(err) {
+        let ${argument3}Component = {
+          restrict: 'E',
+          bindings: {},
+          template,
+          controller,
+          controllerAs: '${argument3}Controller'
+        };
+        export default ${argument3}Component;`, function(err) {
             if(err) {
                 return console.log(` ❌  failed to generate due to error:  ${err}`);
             }
@@ -846,12 +842,11 @@ ${listString}
         });
 
         //build module.js
-        var componentNameArgument = argument3.toLowerCase();
         fs.writeFile(argument3 +".module.js", `import angular from 'angular';
 import ${argument3}Component from './${argument3}.component';
 
-const ${argument3}Module = angular.module('${componentNameArgument}', [])
-  .component('${componentNameArgument}', ${argument3}Component);
+const ${argument3}Module = angular.module('${argument3}', [])
+  .component('${argument3}', ${argument3}Component);
 export default ${argument3}Module;`, function(err) {
             if(err) {
                 return console.log(` ❌  failed to generate due to error:  ${err}`);
@@ -860,13 +855,13 @@ export default ${argument3}Module;`, function(err) {
         });
 
         //build controller.js
-        fs.writeFile(argument3 +".controller.js", `class ${argument3.toUpperCase()}Controller {
+        fs.writeFile(argument3 +".controller.js", `class ${argument3}Controller {
     constructor() {
       this.name = '${argument3}';
     }
   }
 
-  export default ${argument3.toUpperCase()}Controller;`, function(err) {
+  export default ${argument3}Controller;`, function(err) {
             if(err) {
                 return console.log(` ❌  failed to generate due to error:  ${err}`);
             }
