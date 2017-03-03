@@ -22,6 +22,8 @@ ___________
 
 #### Version 1.4 update:
 <br>
+
+
 * Remove components
 
 Remove a component from the project. This command will also automatically update the components.js file. To find out more read below...
