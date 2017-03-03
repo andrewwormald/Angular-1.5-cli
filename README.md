@@ -22,13 +22,13 @@ ___________
 
 #### Version 1.4 update:
 <br>
-* ###### Remove components
+* Remove components
 
 Remove a component from the project. This command will also automatically update the components.js file. To find out more read below...
 
 <br>
 
-* ###### Update components.js file
+* Update components.js file
 
 This would be used in the case of you manually removing/deleting a component directory. You would need to remove that component from the components.js file still. Now you can do that with a cli command!
 
@@ -37,6 +37,7 @@ ___________
 
 #### Future Development List for Angular-1.5-cli:
 <br>
+
 * Generate Directives
 
 
