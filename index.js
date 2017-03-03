@@ -954,6 +954,63 @@ export default ${argument3}Module;`, function(err) {
 
     });
   }
+}else if (value === '-r' || value === 'remove' ){
+
+  function camelize(str) {
+      return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+          return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+      }).replace(/\s+/g, '');
+  }
+
+  value = camelize(`${value}`)
+  argument3 = camelize(`${argument3}`)
+  argument4 = camelize(`${argument4}`)
+
+  function camelize(str) {
+      return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+          return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+      }).replace(/\s+/g, '');
+  }
+
+  // value = camelize(`${value}`)
+  argument3 = camelize(`${argument3}`)
+  argument4 = camelize(`${argument4}`)
+
+console.log('Delete Component');
+prompt.start();
+console.log(`Are you sure you would like to delete ${argument3}` .red);
+prompt.get([{
+  name: 'Answer',
+  required: true
+}], function (err, result) {
+  if (err) {
+    return console.log(err)
+  }
+
+  if (result.Answer === 'yes'){
+      //
+
+      process.chdir(`./client/app/components`);
+        fs.remove(`./${argument3}`, err => {
+      if (err) return console.error(err)
+
+        console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
+
+        //updateComponentsJS after it has deleted the component
+        updateComponentsJS()
+      })
+
+  }else if (result.Answer === 'no' || result.Answer === 'exit' || result.Answer === 'stop') {
+
+  }else{
+  console.log('Exiting...'.orange)
+  }
+
+
+});
+
+}else if (value === 'update' && argument3 === 'components.js'){
+  updateComponentsJS()
 }else{
   //promt user to find out what they want to generate
   console.log(`You can always type 'gen new {{PROJECT NAME}} for a new project or 'gen -c {{COMPONENT NAME}}'`.white);
@@ -1056,3 +1113,86 @@ export default ${argument3}Module;`, function(err) {
 }
 //end of genScript
 };
+
+
+//re-write/update components.js
+function updateComponentsJS() {
+
+  console.log('CURRENT DIR:');
+  console.log(process.cwd());
+  console.log(" 🔰  updating: ".cyan + "components.js".white);
+
+if (process.cwd().includes('client/app/components') === false){
+  process.chdir(`./client/app/components`);
+}
+
+    componentsArray = [];
+    genArr = [];
+
+
+  // sync app.component with updates
+  fs.readdir(process.cwd(), function(err, items) {
+      genArr = items;
+      generateDirectArray(genArr);
+  });
+
+
+  function generateDirectArray(items) {
+      for (var i=0; i<items.length; i++) {
+          if (isDirectory(items[i])){
+          }else{
+              componentsArray.push(items[i]);
+          }
+      }
+      importStringGenerator();
+  }
+
+  function isDirectory(inputString) {
+      var str = inputString;
+      var patt = new RegExp("[.]");
+      var res = patt.test(str);
+      return res;
+  }
+
+  String.prototype.capitalizeFirstLetter = function() {
+      return this.charAt(0).toUpperCase() + this.slice(1);
+  }
+
+  function importStringGenerator(){
+
+      genString = "";
+      for (var i=0; i<componentsArray.length; i++) {
+          genString = genString + `    import ${componentsArray[i].capitalizeFirstLetter()}Module from './${componentsArray[i]}/${componentsArray[i]}.module';\r`
+      }
+      listString = "";
+      for (var i=0; i<componentsArray.length; i++) {
+
+          // check if last in list in order to not include comma
+          if (i === (componentsArray.length - 1)){
+              listString = listString + `     ${componentsArray[i].capitalizeFirstLetter()}Module` + `.name \r`
+          }else{
+              listString = listString + `     ${componentsArray[i].capitalizeFirstLetter()}Module` + '.name, \r'
+          }
+
+      }
+
+
+
+      fs.writeFile("components.js", `
+  import angular from 'angular';
+  ${genString}
+
+  const ComponentsModule = angular.module('app.components',[
+  ${listString}
+  ]);
+
+  export default ComponentsModule;
+
+  `, function(err) {
+          if(err) {
+              return console.log(` ❌  failed to update due to error:  ${err}`);
+          }
+          console.log(" 🔰  updated: ".cyan + "components.js".white);
+      });
+  }
+}

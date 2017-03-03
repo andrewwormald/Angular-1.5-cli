@@ -17,15 +17,30 @@ ___________
 npm run serve
 ```
 This will run webpack and serve up the app on http://localhost:8080/.
+
+___________
+
+#### Version 1.4 update:
+<br>
+* ###### Remove components
+
+Remove a component from the project. This command will also automatically update the components.js file. To find out more read below...
+
+<br>
+
+* ###### Update components.js file
+
+This would be used in the case of you manually removing/deleting a component directory. You would need to remove that component from the components.js file still. Now you can do that with a cli command!
+
+
 ___________
 
 #### Future Development List for Angular-1.5-cli:
-<!-- ```javascript -->
+<br>
+* Generate Directives
 
 
-* Be able to generate directives
-
-<!-- ``` -->
+* Generate Services
 ___________
 
 ### Commands:
@@ -59,6 +74,28 @@ gen -c {{COMPONENT NAME}} --style:css
 
 // Generates a new component using css styling
 ```
+
+___________
+#### Remove Component:
+```javascript
+
+gen -r {{COMPONENT NAME}}
+gen remove {{COMPONENT NAME}}
+
+// Removes the specified component name and updates components.js
+```
+
+___________
+#### Update component.js:
+```javascript
+
+gen update components.js
+
+// Updates the components.js file
+// If you manually remove a component directory then call this function to update the components.js file
+```
+
+
 ___________
 #### Version Number:
 ```javascript
