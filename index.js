@@ -1118,8 +1118,6 @@ prompt.get([{
 //re-write/update components.js
 function updateComponentsJS() {
 
-  console.log('CURRENT DIR:');
-  console.log(process.cwd());
   console.log(" 🔰  updating: ".cyan + "components.js".white);
 
 if (process.cwd().includes('client/app/components') === false){
