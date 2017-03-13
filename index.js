@@ -1009,6 +1009,33 @@ prompt.get([{
 
 });
 
+}else if (value === 'clone'){
+
+  process.chdir(`./client/app/components`);
+
+  function camelize(str) {
+      return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+          return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+      }).replace(/\s+/g, '');
+  }
+
+  value = camelize(`${value}`)
+  argument3 = camelize(`${argument3}`)
+  argument4 = camelize(`${argument4}`)
+
+  //updateComponentsJS with new directory name
+  updateComponentsJS(argument4);
+
+  fs.copy(`${argument3}`, `${argument4}`, function (err) {
+    if (err) return console.error(err)
+
+    console.log("Transfer complete!")
+
+    console.log("Renaming folders...")
+    process.chdir(`./${argument4}`);
+    renameComponentFiles();
+  });
+
 }else if (value === 'update' && argument3 === 'components.js'){
   updateComponentsJS()
 }else{
@@ -1114,9 +1141,125 @@ prompt.get([{
 //end of genScript
 };
 
+function renameComponentFiles() {
+
+  var fileTypes = ['component.html','component.js', 'component.scss', 'module.js', 'controller.js']
+
+  //0
+    console.log(`Reading ${argument3}.${fileTypes[0]} file`)
+    fs.readFile(`${argument3}.${fileTypes[0]}`, 'utf8', function (err,data) {
+    if (err) {
+      return console.log(err);
+    }
+
+    var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
+
+    console.log(`Writing ${argument4}.${fileTypes[0]} file`)
+    fs.writeFile(`${argument4}.${fileTypes[0]}`, result, 'utf8', function (err) {
+       if (err) return console.log(err);
+    });
+  });
+
+  //1
+      console.log(`Reading ${argument3}.${fileTypes[1]} file`)
+      fs.readFile(`${argument3}.${fileTypes[1]}`, 'utf8', function (err,data) {
+      if (err) {
+        return console.log(err);
+      }
+
+      var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
+
+      console.log(`Writing ${argument4}.${fileTypes[1]} file`)
+      fs.writeFile(`${argument4}.${fileTypes[1]}`, result, 'utf8', function (err) {
+         if (err) return console.log(err);
+      });
+    });
+
+    //2
+        console.log(`Reading ${argument3}.${fileTypes[2]} file`)
+        fs.readFile(`${argument3}.${fileTypes[2]}`, 'utf8', function (err,data) {
+        if (err) {
+          return console.log(err);
+        }
+
+        var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
+
+        console.log(`Writing ${argument4}.${fileTypes[2]} file`)
+        fs.writeFile(`${argument4}.${fileTypes[2]}`, result, 'utf8', function (err) {
+           if (err) return console.log(err);
+        });
+      });
+
+      //3
+          console.log(`Reading ${argument3}.${fileTypes[3]} file`)
+          fs.readFile(`${argument3}.${fileTypes[3]}`, 'utf8', function (err,data) {
+          if (err) {
+            return console.log(err);
+          }
+
+          var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
+
+          console.log(`Writing ${argument4}.${fileTypes[3]} file`)
+          fs.writeFile(`${argument4}.${fileTypes[3]}`, result, 'utf8', function (err) {
+             if (err) return console.log(err);
+          });
+        });
+
+        //3
+            console.log(`Reading ${argument3}.${fileTypes[4]} file`)
+            fs.readFile(`${argument3}.${fileTypes[4]}`, 'utf8', function (err,data) {
+            if (err) {
+              return console.log(err);
+            }
+
+            var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
+
+            console.log(`Writing ${argument4}.${fileTypes[4]} file`)
+            fs.writeFile(`${argument4}.${fileTypes[4]}`, result, 'utf8', function (err) {
+               if (err) return console.log(err);
+            });
+          });
+
+          fs.remove(`./${argument3}.${fileTypes[0]}`, err => {
+        if (err) return console.error(err)
+
+          console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
+
+        })
+
+        fs.remove(`./${argument3}.${fileTypes[1]}`, err => {
+      if (err) return console.error(err)
+
+        console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
+
+      })
+
+      fs.remove(`./${argument3}.${fileTypes[2]}`, err => {
+    if (err) return console.error(err)
+
+      console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
+
+    })
+
+    fs.remove(`./${argument3}.${fileTypes[3]}`, err => {
+  if (err) return console.error(err)
+
+    console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
+
+  })
+
+  fs.remove(`./${argument3}.${fileTypes[4]}`, err => {
+if (err) return console.error(err)
+
+  console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
+
+})
+
+}
+
 
 //re-write/update components.js
-function updateComponentsJS() {
+function updateComponentsJS(newFileName) {
 
   console.log(" 🔰  updating: ".cyan + "components.js".white);
 
@@ -1157,6 +1300,9 @@ if (process.cwd().includes('client/app/components') === false){
   }
 
   function importStringGenerator(){
+      if(typeof newFileName != 'undefined'){
+        componentsArray.push(`${newFileName}`);
+      }
 
       genString = "";
       for (var i=0; i<componentsArray.length; i++) {

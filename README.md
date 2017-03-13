@@ -20,6 +20,17 @@ This will run webpack and serve up the app on http://localhost:8080/.
 
 ___________
 
+#### Version 1.5 update:
+<br>
+
+
+* Clone components with custom name
+
+Clone a component from the project. This command will also automatically update the components.js file. To find out more read below...
+
+<br><br>
+
+
 #### Version 1.4 update:
 <br>
 
@@ -77,6 +88,17 @@ gen -c {{COMPONENT NAME}} --style:css
 
 // Generates a new component using css styling
 ```
+
+___________
+#### Clone Component:
+```javascript
+
+gen clone {{COMPONENT NAME THAT WILL BE CLONED}} {{NAME OF CLONED COMPONENT}}
+
+// Clones the specified component and renames the new component as well as updates components.js
+```
+
+___________
 
 ___________
 #### Remove Component:
