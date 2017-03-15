@@ -21,42 +21,42 @@ initScript();
 //
 
 
-function initScript(){
+function initScript() {
   genScript()
-    if (value === 'new') {
-        setTimeout(function () {
-            console.log('installing npm modules...');
-        }, 1500);
-        installModules();
-    }
+  if (value === 'new') {
+    setTimeout(function () {
+      console.log('installing npm modules...');
+    }, 1500);
+    installModules();
+  }
 }
 
-function installModules(){
+function installModules() {
   cmd.get(
-        `
+    `
             cd ${argument3}
             npm i
         `,
-        function(data){
-            console.log('installation of npm modules complete!');
-        }
-    );
+    function (data) {
+      console.log('installation of npm modules complete!');
+    }
+  );
 }
 
 //declaring script as function in order to re-execute the script
-function genScript(){
+function genScript() {
 
 //spilt 'gen new' from 'gen {{COMPONENT NAME}}'
-if (value === 'new') {
+  if (value === 'new') {
 // generate a brand new project with the name
 //argument 3 is now the project name
-mkdirp(argument3, function (err) {
-  if (err) console.error(err)
-  else
-  process.chdir(argument3),
+    mkdirp(argument3, function (err) {
+      if (err) console.error(err)
+      else
+        process.chdir(argument3),
 
-  //generte .gitignore
-  fs.writeFile(".gitignore", `.DS_Store
+          //generte .gitignore
+          fs.writeFile(".gitignore", `.DS_Store
 .tmp
 .git
 node_modules
@@ -64,15 +64,15 @@ node_modules
 *.log
 client/bundle.js
 client/bundle.js.map
-.idea` , function(err) {
-      if(err) {
-          return console.log(` ❌  failed to generate due to error:  ${err}`);
-      }
-      console.log(" 🎁  created: ".cyan + ".gitignore".white);
-  });
+.idea`, function (err) {
+            if (err) {
+              return console.log(` ❌  failed to generate due to error:  ${err}`);
+            }
+            console.log(" 🎁  created: ".cyan + ".gitignore".white);
+          });
 
-  //generte webpack.config.js
-  fs.writeFile("webpack.config.js", `var path = require('path'),
+      //generte webpack.config.js
+      fs.writeFile("webpack.config.js", `var path = require('path'),
     webpack = require("webpack"),
     libPath = path.join(__dirname, 'client'),
     wwwPath = path.join(__dirname, 'dist'),
@@ -125,15 +125,15 @@ module.exports = {
     new webpack.optimize.DedupePlugin()
   ]
 };
-` , function(err) {
-      if(err) {
+`, function (err) {
+        if (err) {
           return console.log(` ❌  failed to generate due to error:  ${err}`);
-      }
-      console.log(" 🎁  created: ".cyan + "webpack.config.js".white);
-  });
+        }
+        console.log(" 🎁  created: ".cyan + "webpack.config.js".white);
+      });
 
-  //generte README.md
-  fs.writeFile("README.md", `
+      //generte README.md
+      fs.writeFile("README.md", `
 
   ___________
   # ANGULAR-1.5-CLI
@@ -175,14 +175,14 @@ module.exports = {
   // Generates a new component using css styling
 
   ___________
-` , function(err) {
-      if(err) {
+`, function (err) {
+        if (err) {
           return console.log(` ❌  failed to generate due to error:  ${err}`);
-      }
-      console.log(" 🎁  created: ".cyan + "README.md".white);
-  });
+        }
+        console.log(" 🎁  created: ".cyan + "README.md".white);
+      });
 
-  fs.writeFile('spec.bundle.js', `/*
+      fs.writeFile('spec.bundle.js', `/*
  * When testing with Webpack and ES6, we have to do some
  * preliminary setup. Because we are writing our tests also in ES6,
  * we must transpile those as well, which is handled inside
@@ -209,16 +209,16 @@ let context = require.context('./client/app', true, /\\.spec\\.js/);
 // that will require the file and load it here. Context will
 // loop and require those spec files here.
 context.keys().forEach(context);
-`, function(err) {
-    if(err) {
-        return console.log(` ❌  failed to generate due to error:  ${err}`);
-    }
-    console.log(" 🎁  created: ".cyan + "spec.bundle.js".white);
-  });
+`, function (err) {
+        if (err) {
+          return console.log(` ❌  failed to generate due to error:  ${err}`);
+        }
+        console.log(" 🎁  created: ".cyan + "spec.bundle.js".white);
+      });
 
 
 // generate karma file
-  fs.writeFile('karma.conf.js', `module.exports = function(config) {
+      fs.writeFile('karma.conf.js', `module.exports = function(config) {
 config.set({
   basePath: '',
   frameworks: ['jasmine'],
@@ -268,17 +268,16 @@ config.set({
   singleRun: true
 });
 };
-`, function(err) {
-    if(err) {
-        return console.log(` ❌  failed to generate due to error:  ${err}`);
-    }
-    console.log(" 🎁  created: ".cyan + "karma.conf.js".white);
-  });
+`, function (err) {
+        if (err) {
+          return console.log(` ❌  failed to generate due to error:  ${err}`);
+        }
+        console.log(" 🎁  created: ".cyan + "karma.conf.js".white);
+      });
 
 
-
-  //generate package.json
-  fs.writeFile("package.json", `{
+      //generate package.json
+      fs.writeFile("package.json", `{
   "name": "${argument3}",
   "version": "0.0.1",
   "description": "Boilerplate generated by Angular-1.5-cli.",
@@ -346,57 +345,58 @@ config.set({
   },
   "author": "Andrew Wormald",
   "license": "MIT"
-}` , function(err) {
-      if(err) {
+}`, function (err) {
+        if (err) {
           return console.log(` ❌  failed to generate due to error:  ${err}`);
-      }
-      console.log(" 🎁  created: ".cyan + "package.json".white);
-  });
+        }
+        console.log(" 🎁  created: ".cyan + "package.json".white);
+      });
 
-  //generate .bablerc
-  fs.writeFile(".babelrc", `{
+      //generate .bablerc
+      fs.writeFile(".babelrc", `{
     "presets": [ "es2015"]
-  }` , function(err) {
-      if(err) {
+  }`, function (err) {
+        if (err) {
           return console.log(` ❌  failed to generate due to error:  ${err}`);
-      }
-      console.log(" 🎁  created: ".cyan + ".bablerc".white);
-  });
+        }
+        console.log(" 🎁  created: ".cyan + ".bablerc".white);
+      });
 
-  // generate client directory
-  mkdirp("client", function (err) {
-    //within this directory create all the sub scripts (e.g. app.component.html)
-    process.chdir("client"),
+      // generate client directory
+      mkdirp("client", function (err) {
+        //within this directory create all the sub scripts (e.g. app.component.html)
+        process.chdir("client"),
 
-    mkdirp("assets/img", function (err) {
-      console.log(" 🎁  created: ".cyan + "client/assets".white);
-      console.log(" 🎁  created: ".cyan + "client/assets/img".white);
-    });
+          mkdirp("assets/img", function (err) {
+            console.log(" 🎁  created: ".cyan + "client/assets".white);
+            console.log(" 🎁  created: ".cyan + "client/assets/img".white);
+          });
 
-    //generate favicon.jpg using base 64
-   data = 'data:image/png;base64,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';
+        //generate favicon.jpg using base 64
+        data = 'data:image/png;base64,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';
 
-    function decodeBase64Image(dataString) {
-      var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
-        response = {};
-      if (matches.length !== 3) {
-        return new Error('Invalid input string');
-      }
-      response.type = matches[1];
-      response.data = new Buffer(matches[2], 'base64');
-      return response;
-    }
-    imageBuffer = decodeBase64Image(data);
+        function decodeBase64Image(dataString) {
+          var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
+            response = {};
+          if (matches.length !== 3) {
+            return new Error('Invalid input string');
+          }
+          response.type = matches[1];
+          response.data = new Buffer(matches[2], 'base64');
+          return response;
+        }
 
-    fs.writeFile('favicon.ico', imageBuffer.data, function(err) {
-      if(err) {
-          return console.log(` ❌  failed to generate due to error:  ${err}`);
-      }
-      console.log(" 🎁  created: ".cyan + "favicon.png".white);
-    });
+        imageBuffer = decodeBase64Image(data);
 
-      //generate index.ejs file
-      fs.writeFile(`index.ejs`,`<!doctype html>
+        fs.writeFile('favicon.ico', imageBuffer.data, function (err) {
+          if (err) {
+            return console.log(` ❌  failed to generate due to error:  ${err}`);
+          }
+          console.log(" 🎁  created: ".cyan + "favicon.png".white);
+        });
+
+        //generate index.ejs file
+        fs.writeFile(`index.ejs`, `<!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -409,18 +409,18 @@ config.set({
     </app>
 </body>
 <!-- {%= o.htmlWebpackPlugin.options.pkg.name + ' v' + o.htmlWebpackPlugin.options.pkg.version + ' built on ' + new Date() %} -->
-</html>`, function(err){
+</html>`, function (err) {
 
-          if(err) {
-              return console.log(` ❌  failed to generate due to error:  ${err}`);
+          if (err) {
+            return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
           console.log(" 🎁  created: ".cyan + "index.ejs".white);
 
-      });
+        });
 
 
-    // generate index.html
-    fs.writeFile("index.html", `
+        // generate index.html
+        fs.writeFile("index.html", `
     <!doctype html>
       <html lang="en">
         <head>
@@ -443,20 +443,20 @@ config.set({
           <script src="bundle.js"></script>
         </body>
       </html>
-  ` , function(err) {
-        if(err) {
+  `, function (err) {
+          if (err) {
             return console.log(` ❌  failed to generate due to error:  ${err}`);
-        }
-        console.log(" 🎁  created: ".cyan + "index.html".white);
-    });
+          }
+          console.log(" 🎁  created: ".cyan + "index.html".white);
+        });
 
-    mkdirp("app/components", function (err) {
-      if (err) console.error(err)
-      else
-      process.chdir("app"),
+        mkdirp("app/components", function (err) {
+          if (err) console.error(err)
+          else
+            process.chdir("app"),
 
-      //build components.js
-      fs.writeFile("components/components.js", `
+              //build components.js
+              fs.writeFile("components/components.js", `
         import angular from 'angular';
 
         const ComponentsModule = angular.module('app.components', [
@@ -464,16 +464,16 @@ config.set({
       ]);
 
       export default ComponentsModule;
-` , function(err) {
-          if(err) {
-              return console.log(` ❌  failed to generate due to error:  ${err}`);
-          }
-          console.log(" 🎁  created: ".cyan + "app/components/components.js".white);
-      });
+`, function (err) {
+                if (err) {
+                  return console.log(` ❌  failed to generate due to error:  ${err}`);
+                }
+                console.log(" 🎁  created: ".cyan + "app/components/components.js".white);
+              });
 
 
-      //build component.html
-      fs.writeFile(`${scriptName}.component.html`, `<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
+          //build component.html
+          fs.writeFile(`${scriptName}.component.html`, `<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
       <div class="container">
     <img src="https://raw.githubusercontent.com/SwiftySpartan/Angular-1.5-cli/master/canvas1.png" class=".img-responsive center-block">
     <p>Angular-1.5-cli</p>
@@ -519,17 +519,17 @@ Generates a new component using css styling <br><br>
     </p>
   </div>
 </div>
-` , function(err) {
-          if(err) {
+`, function (err) {
+            if (err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
-          }
-          console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.html".white);
-      });
+            }
+            console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.html".white);
+          });
 
-      //build scss || css styling scripts
-      if (argument3 === "--style:css" || argument4 === "--style:css") {
-      // build component.css
-      fs.writeFile(scriptName +".component.css", `
+          //build scss || css styling scripts
+          if (argument3 === "--style:css" || argument4 === "--style:css") {
+            // build component.css
+            fs.writeFile(scriptName + ".component.css", `
 
 body {
         background-color: #212121;
@@ -574,15 +574,15 @@ background-color: #C3002F;
   font-size: 17px;
   font-family: 'Open Sans Condensed', sans-serif;
 }
-`, function(err) {
-          if(err) {
-              return console.log(` ❌  failed to generate due to error:  ${err}`);
-          }
-          console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.css".white);
-      });
-      }else{
-      // build component.scss
-      fs.writeFile(scriptName +".component.scss", `@import url('https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300');
+`, function (err) {
+              if (err) {
+                return console.log(` ❌  failed to generate due to error:  ${err}`);
+              }
+              console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.css".white);
+            });
+          } else {
+            // build component.scss
+            fs.writeFile(scriptName + ".component.scss", `@import url('https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300');
 @import url('https://fonts.googleapis.com/css?family=Titillium+Web:700');
 
 body {
@@ -626,19 +626,19 @@ background-color: #C3002F;
     }
   }
 }
-`, function(err) {
-          if(err) {
-              return console.log(` ❌  failed to generate due to error:  ${err}`);
+`, function (err) {
+              if (err) {
+                return console.log(` ❌  failed to generate due to error:  ${err}`);
+              }
+              console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.scss".white);
+            });
           }
-          console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.scss".white);
-      });
-      }
 
 
-      //build component.js
-      if (argument3 === "--style:css" || argument4 === "--style:css") {
-      // build component.js with import of css folder
-      fs.writeFile(scriptName +".component.js", `
+          //build component.js
+          if (argument3 === "--style:css" || argument4 === "--style:css") {
+            // build component.js with import of css folder
+            fs.writeFile(scriptName + ".component.js", `
       import template from './app.component.html';
       import './app.component.scss';
 
@@ -647,15 +647,15 @@ background-color: #C3002F;
       };
 
       export default AppComponent;
-      `, function(err) {
-          if(err) {
-              return console.log(` ❌  failed to generate due to error:  ${err}`);
-          }
-          console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.js".white);
-      });
-      }else{
-      // build component.js with import of scss folder
-      fs.writeFile(scriptName +".component.js", `
+      `, function (err) {
+              if (err) {
+                return console.log(` ❌  failed to generate due to error:  ${err}`);
+              }
+              console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.js".white);
+            });
+          } else {
+            // build component.js with import of scss folder
+            fs.writeFile(scriptName + ".component.js", `
       import template from './app.component.html';
       import './app.component.scss';
 
@@ -664,16 +664,16 @@ background-color: #C3002F;
       };
 
       export default AppComponent;
-      `, function(err) {
-          if(err) {
-              return console.log(` ❌  failed to generate due to error:  ${err}`);
+      `, function (err) {
+              if (err) {
+                return console.log(` ❌  failed to generate due to error:  ${err}`);
+              }
+              console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.js".white);
+            });
           }
-          console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".component.js".white);
-      });
-      }
 
-      //build module.js
-      fs.writeFile(scriptName +".module.js", `
+          //build module.js
+          fs.writeFile(scriptName + ".module.js", `
       import 'bootstrap-css-only';
       import 'normalize.css';
       import angular from 'angular';
@@ -684,22 +684,22 @@ background-color: #C3002F;
           ComponentsModule.name
         ])
         .component('app', appComponent);
-        `, function(err) {
-          if(err) {
+        `, function (err) {
+            if (err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
-          }
-          console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".module.js".white);
+            }
+            console.log(" 🎁  created: ".cyan + "client/".white + scriptName.white + ".module.js".white);
+          });
+
+        });
+
       });
-
+      //making client directory and sub scripts should be last in the list as then you do not need to go back up a level in the directory ladder
     });
-
-  });
-  //making client directory and sub scripts should be last in the list as then you do not need to go back up a level in the directory ladder
-});
 //argument 4 is now the styling order
 
 
-}else if (value === '-c'){
+  } else if (value === '-c') {
 
     //go to components directory
     const rootBase = __dirname
@@ -710,11 +710,10 @@ background-color: #C3002F;
     genArr = [];
 
 
-
     function camelize(str) {
-        return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
-            return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
-        }).replace(/\s+/g, '');
+      return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function (letter, index) {
+        return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+      }).replace(/\s+/g, '');
     }
 
     value = camelize(`${value}`)
@@ -722,54 +721,53 @@ background-color: #C3002F;
     argument4 = camelize(`${argument4}`)
 
     // sync app.component with updates
-    fs.readdir(process.cwd(), function(err, items) {
-        genArr = items;
-        generateDirectArray(genArr);
+    fs.readdir(process.cwd(), function (err, items) {
+      genArr = items;
+      generateDirectArray(genArr);
     });
 
 
     function generateDirectArray(items) {
-        for (var i=0; i<items.length; i++) {
-            if (isDirectory(items[i])){
-            }else{
-                componentsArray.push(items[i]);
-            }
+      for (var i = 0; i < items.length; i++) {
+        if (isDirectory(items[i])) {
+        } else {
+          componentsArray.push(items[i]);
         }
-        importStringGenerator();
+      }
+      importStringGenerator();
     }
 
     function isDirectory(inputString) {
-        var str = inputString;
-        var patt = new RegExp("[.]");
-        var res = patt.test(str);
-        return res;
+      var str = inputString;
+      var patt = new RegExp("[.]");
+      var res = patt.test(str);
+      return res;
     }
 
-    String.prototype.capitalizeFirstLetter = function() {
-        return this.charAt(0).toUpperCase() + this.slice(1);
+    String.prototype.capitalizeFirstLetter = function () {
+      return this.charAt(0).toUpperCase() + this.slice(1);
     }
 
-    function importStringGenerator(){
-        componentsArray.push(`${argument3}`);
-        genString = "";
-        for (var i=0; i<componentsArray.length; i++) {
-            genString = genString + `    import ${componentsArray[i].capitalizeFirstLetter()}Module from './${componentsArray[i]}/${componentsArray[i]}.module';\r`
-        }
-        listString = "";
-        for (var i=0; i<componentsArray.length; i++) {
+    function importStringGenerator() {
+      componentsArray.push(`${argument3}`);
+      genString = "";
+      for (var i = 0; i < componentsArray.length; i++) {
+        genString = genString + `    import ${componentsArray[i].capitalizeFirstLetter()}Module from './${componentsArray[i]}/${componentsArray[i]}.module';\r`
+      }
+      listString = "";
+      for (var i = 0; i < componentsArray.length; i++) {
 
-            // check if last in list in order to not include comma
-            if (i === (componentsArray.length - 1)){
-                listString = listString + `     ${componentsArray[i].capitalizeFirstLetter()}Module` + `.name \r`
-            }else{
-                listString = listString + `     ${componentsArray[i].capitalizeFirstLetter()}Module` + '.name, \r'
-            }
-
+        // check if last in list in order to not include comma
+        if (i === (componentsArray.length - 1)) {
+          listString = listString + `     ${componentsArray[i].capitalizeFirstLetter()}Module` + `.name \r`
+        } else {
+          listString = listString + `     ${componentsArray[i].capitalizeFirstLetter()}Module` + '.name, \r'
         }
 
+      }
 
 
-        fs.writeFile("components.js", `
+      fs.writeFile("components.js", `
     import angular from 'angular';
 ${genString}
 
@@ -779,51 +777,51 @@ ${listString}
 
     export default ComponentsModule;
 
-    `, function(err) {
-            if(err) {
-                return console.log(` ❌  failed to update due to error:  ${err}`);
-            }
-            console.log(" 🔰  updated: ".cyan + "components.js".white);
-        });
+    `, function (err) {
+        if (err) {
+          return console.log(` ❌  failed to update due to error:  ${err}`);
+        }
+        console.log(" 🔰  updated: ".cyan + "components.js".white);
+      });
     }
 
 
     mkdirp(argument3, function (err) {
-        console.log("Generating Component...".white)
-        if (err) console.error(err)
-        else
-            process.chdir(argument3),
+      console.log("Generating Component...".white)
+      if (err) console.error(err)
+      else
+        process.chdir(argument3),
 
-                //build component.html
-                fs.writeFile(argument3 +".component.html", `<h1> ${argument3} works! </h1>` , function(err) {
-                    if(err) {
-                        return console.log(` ❌  failed to generate due to error:  ${err}`);
-                    }
-                    console.log(" 🎁  created: ".cyan + argument3.white + ".component.html".white);
-                });
+          //build component.html
+          fs.writeFile(argument3 + ".component.html", `<h1> ${argument3} works! </h1>`, function (err) {
+            if (err) {
+              return console.log(` ❌  failed to generate due to error:  ${err}`);
+            }
+            console.log(" 🎁  created: ".cyan + argument3.white + ".component.html".white);
+          });
 
-        //build scss || css styling scripts
-        if (argument3 === "--style:css" || argument4 === "--style:css") {
-            // build component.css
-            fs.writeFile(argument3 +".component.css", "", function(err) {
-                if(err) {
-                    return console.log(` ❌  failed to generate due to error:  ${err}`);
-                }
-                console.log(" 🎁  created: ".cyan + argument3.white + ".component.css".white);
-            });
-        }else{
-            // build component.scss
-            fs.writeFile(argument3 +".component.scss", "", function(err) {
-                if(err) {
-                    return console.log(` ❌  failed to generate due to error:  ${err}`);
-                }
-                console.log(" 🎁  created: ".cyan + argument3.white + ".component.scss".white);
-            });
-        }
+      //build scss || css styling scripts
+      if (argument3 === "--style:css" || argument4 === "--style:css") {
+        // build component.css
+        fs.writeFile(argument3 + ".component.css", "", function (err) {
+          if (err) {
+            return console.log(` ❌  failed to generate due to error:  ${err}`);
+          }
+          console.log(" 🎁  created: ".cyan + argument3.white + ".component.css".white);
+        });
+      } else {
+        // build component.scss
+        fs.writeFile(argument3 + ".component.scss", "", function (err) {
+          if (err) {
+            return console.log(` ❌  failed to generate due to error:  ${err}`);
+          }
+          console.log(" 🎁  created: ".cyan + argument3.white + ".component.scss".white);
+        });
+      }
 
 
-        //build component.js
-        fs.writeFile(argument3 +".component.js", `import template from './${argument3}.component.html';
+      //build component.js
+      fs.writeFile(argument3 + ".component.js", `import template from './${argument3}.component.html';
 import controller from './${argument3}.controller.js';
 import './${argument3}.component.scss';
 
@@ -834,46 +832,45 @@ let ${argument3}Component = {
   controller,
   controllerAs: '${argument3}Controller'
 };
-export default ${argument3}Component;`, function(err) {
-            if(err) {
-                return console.log(` ❌  failed to generate due to error:  ${err}`);
-            }
-            console.log(" 🎁  created: ".cyan + argument3.white + ".component.js".white);
-        });
+export default ${argument3}Component;`, function (err) {
+        if (err) {
+          return console.log(` ❌  failed to generate due to error:  ${err}`);
+        }
+        console.log(" 🎁  created: ".cyan + argument3.white + ".component.js".white);
+      });
 
-        //build module.js
-        fs.writeFile(argument3 +".module.js", `import angular from 'angular';
+      //build module.js
+      fs.writeFile(argument3 + ".module.js", `import angular from 'angular';
 import ${argument3}Component from './${argument3}.component';
 
 const ${argument3}Module = angular.module('${argument3}', [])
   .component('${argument3}', ${argument3}Component);
-export default ${argument3}Module;`, function(err) {
-            if(err) {
-                return console.log(` ❌  failed to generate due to error:  ${err}`);
-            }
-            console.log(" 🎁  created: ".cyan + argument3.white + ".module.js".white);
-        });
+export default ${argument3}Module;`, function (err) {
+        if (err) {
+          return console.log(` ❌  failed to generate due to error:  ${err}`);
+        }
+        console.log(" 🎁  created: ".cyan + argument3.white + ".module.js".white);
+      });
 
-        //build controller.js
-        fs.writeFile(argument3 +".controller.js", `class ${argument3}Controller {
+      //build controller.js
+      fs.writeFile(argument3 + ".controller.js", `class ${argument3}Controller {
     constructor() {
       this.name = '${argument3}';
     }
   }
 
-  export default ${argument3}Controller;`, function(err) {
-            if(err) {
-                return console.log(` ❌  failed to generate due to error:  ${err}`);
-            }
-            console.log(" 🎁  created: ".cyan + argument3.white + ".controller.js".white);
-        });
+  export default ${argument3}Controller;`, function (err) {
+        if (err) {
+          return console.log(` ❌  failed to generate due to error:  ${err}`);
+        }
+        console.log(" 🎁  created: ".cyan + argument3.white + ".controller.js".white);
+      });
     });
 
 
-
-}else if (value === 'help' || value === '-help' || value === '--help' || value === '-h'){
-  // provide user with help
-  console.log(`
+  } else if (value === 'help' || value === '-help' || value === '--help' || value === '-h') {
+    // provide user with help
+    console.log(`
     - gen new {{PROJECT NAME}}
 
     - gen new {{PROJECT NAME}} --style:css
@@ -896,47 +893,227 @@ export default ${argument3}Module;`, function(err) {
     - gen --version
         This reveals the Angular-1.5-cli command list
     `);
-}else if (value === 'v' || value === 'version' || value === '-v' || value === '--version'){
-  //provide user with version number
-  console.log(packagejson.version);
-}else if (value === "serve" || value ==="comp") {
-  if (value === "serve"){
-    console.log('serving angular 1.5 app...');
-    cmd.get(
+  } else if (value === 'v' || value === 'version' || value === '-v' || value === '--version') {
+    //provide user with version number
+    console.log(packagejson.version);
+  } else if (value === "serve" || value === "comp") {
+    if (value === "serve") {
+      console.log('serving angular 1.5 app...');
+      cmd.get(
         `
                 webpack && webpack-dev-server --content-base client/
             `,
-        function(data){
+        function (data) {
 
         }
-    );
+      );
 
-  }else if (value === "comp"){
+    } else if (value === "comp") {
 
-    // user chose component
-    prompt.start();
+      // user chose component
+      prompt.start();
 
-    prompt.get([{
+      prompt.get([{
         name: 'name',
         required: true
-    }], function (err, result) {
+      }], function (err, result) {
         //
         // Log the results.
         //
         var projectName = result.name
         console.log(`Would you like to use 'scss or css'?`);
         prompt.get([{
+          name: 'styling',
+          required: true
+        }], function (err, result) {
+          //
+          // Log the results.
+          //
+          var stylingVar = '';
+          if (result.styling === 'css') {
+            stylingVar = '--style:css'
+          } else {
+            stylingVar = '--style:scss'
+          }
+          console.log(`Generating component: ${projectName}`);
+
+          value = '-c';
+          argument3 = projectName;
+          argument4 = stylingVar;
+
+          //
+          //re-execute genScript with new values
+          genScript();
+          //
+          //
+
+        });
+
+      });
+    }
+  } else if (value === '-r' || value === 'remove') {
+
+    function camelize(str) {
+      return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function (letter, index) {
+        return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+      }).replace(/\s+/g, '');
+    }
+
+    value = camelize(`${value}`)
+    argument3 = camelize(`${argument3}`)
+    argument4 = camelize(`${argument4}`)
+
+    function camelize(str) {
+      return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function (letter, index) {
+        return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+      }).replace(/\s+/g, '');
+    }
+
+    // value = camelize(`${value}`)
+    argument3 = camelize(`${argument3}`)
+    argument4 = camelize(`${argument4}`)
+
+    console.log('Delete Component');
+    prompt.start();
+    console.log(`Are you sure you would like to delete ${argument3}`.red);
+    prompt.get([{
+      name: 'Answer',
+      required: true
+    }], function (err, result) {
+      if (err) {
+        return console.log(err)
+      }
+
+      if (result.Answer === 'yes') {
+        //
+
+        process.chdir(`./client/app/components`);
+        fs.remove(`./${argument3}`, err = > {
+          if (err) return console.error(err)
+
+          console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
+
+        //updateComponentsJS after it has deleted the component
+        updateComponentsJS()
+      })
+
+      } else if (result.Answer === 'no' || result.Answer === 'exit' || result.Answer === 'stop') {
+
+      } else {
+        console.log('Exiting...'.orange)
+      }
+
+
+    });
+
+  } else if (value === 'clone') {
+
+    process.chdir(`./client/app/components`);
+
+    function camelize(str) {
+      return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function (letter, index) {
+        return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+      }).replace(/\s+/g, '');
+    }
+
+    value = camelize(`${value}`)
+    argument3 = camelize(`${argument3}`)
+    argument4 = camelize(`${argument4}`)
+
+    //updateComponentsJS with new directory name
+    updateComponentsJS(argument4);
+
+    fs.copy(`${argument3}`, `${argument4}`, function (err) {
+      if (err) return console.error(err)
+
+      console.log("Transfer complete!")
+
+      console.log("Renaming folders...")
+      process.chdir(`./${argument4}`);
+      renameComponentFiles();
+    });
+
+  } else if (value === 'update' && argument3 === 'components.js') {
+    updateComponentsJS()
+  } else {
+    //promt user to find out what they want to generate
+    console.log(`You can always type 'gen new {{PROJECT NAME}} for a new project or 'gen -c {{COMPONENT NAME}}'`.white);
+    prompt.start();
+
+    console.log(`Would you like to generate a 'project' or 'component' ?`.red);
+    prompt.get([{
+      name: 'type',
+      required: true
+    }], function (err, result) {
+      //
+      // Log the results.
+      //
+      if (result.type === `project` || result.type === `Project`) {
+        // user chose project
+        prompt.start();
+
+        prompt.get([{
+          name: 'name',
+          required: true
+        }], function (err, result) {
+          //
+          // Log the results.
+          //
+          var projectName = result.name
+          console.log(`Would you like to use 'scss or css'?`);
+          prompt.get([{
             name: 'styling',
             required: true
-        }], function (err, result) {
+          }], function (err, result) {
             //
             // Log the results.
             //
             var stylingVar = '';
-            if (result.styling === 'css'){
-                stylingVar = '--style:css'
-            }else{
-                stylingVar = '--style:scss'
+            if (result.styling === 'css') {
+              stylingVar = '--style:css'
+            } else {
+              stylingVar = '--style:scss'
+            }
+            console.log(`Generating project: ${projectName}`);
+
+            value = 'new';
+            argument3 = projectName;
+            argument4 = stylingVar;
+
+
+            //
+            //re-execute genScript with new values
+            genScript();
+            //
+            //
+
+          });
+        });
+      } else if (result.type === `component` || result.type === `Component`) {
+        // user chose component
+        prompt.start();
+
+        prompt.get([{
+          name: 'name',
+          required: true
+        }], function (err, result) {
+          //
+          // Log the results.
+          //
+          var projectName = result.name
+          console.log(`Would you like to use 'scss or css'?`);
+          prompt.get([{
+            name: 'styling',
+            required: true
+          }], function (err, result) {
+            //
+            // Log the results.
+            //
+            var stylingVar = '';
+            if (result.styling === 'css') {
+              stylingVar = '--style:css'
+            } else {
+              stylingVar = '--style:scss'
             }
             console.log(`Generating component: ${projectName}`);
 
@@ -950,204 +1127,24 @@ export default ${argument3}Module;`, function(err) {
             //
             //
 
+          });
+
         });
-
+      } else {
+        console.log(`Please try again. Unfortunately I do not understand what you would like me to do for you...`.red);
+      }
     });
   }
-}else if (value === '-r' || value === 'remove' ){
-
-  function camelize(str) {
-      return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
-          return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
-      }).replace(/\s+/g, '');
-  }
-
-  value = camelize(`${value}`)
-  argument3 = camelize(`${argument3}`)
-  argument4 = camelize(`${argument4}`)
-
-  function camelize(str) {
-      return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
-          return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
-      }).replace(/\s+/g, '');
-  }
-
-  // value = camelize(`${value}`)
-  argument3 = camelize(`${argument3}`)
-  argument4 = camelize(`${argument4}`)
-
-console.log('Delete Component');
-prompt.start();
-console.log(`Are you sure you would like to delete ${argument3}` .red);
-prompt.get([{
-  name: 'Answer',
-  required: true
-}], function (err, result) {
-  if (err) {
-    return console.log(err)
-  }
-
-  if (result.Answer === 'yes'){
-      //
-
-      process.chdir(`./client/app/components`);
-        fs.remove(`./${argument3}`, err => {
-      if (err) return console.error(err)
-
-        console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
-
-        //updateComponentsJS after it has deleted the component
-        updateComponentsJS()
-      })
-
-  }else if (result.Answer === 'no' || result.Answer === 'exit' || result.Answer === 'stop') {
-
-  }else{
-  console.log('Exiting...'.orange)
-  }
-
-
-});
-
-}else if (value === 'clone'){
-
-  process.chdir(`./client/app/components`);
-
-  function camelize(str) {
-      return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
-          return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
-      }).replace(/\s+/g, '');
-  }
-
-  value = camelize(`${value}`)
-  argument3 = camelize(`${argument3}`)
-  argument4 = camelize(`${argument4}`)
-
-  //updateComponentsJS with new directory name
-  updateComponentsJS(argument4);
-
-  fs.copy(`${argument3}`, `${argument4}`, function (err) {
-    if (err) return console.error(err)
-
-    console.log("Transfer complete!")
-
-    console.log("Renaming folders...")
-    process.chdir(`./${argument4}`);
-    renameComponentFiles();
-  });
-
-}else if (value === 'update' && argument3 === 'components.js'){
-  updateComponentsJS()
-}else{
-  //promt user to find out what they want to generate
-  console.log(`You can always type 'gen new {{PROJECT NAME}} for a new project or 'gen -c {{COMPONENT NAME}}'`.white);
-  prompt.start();
-
-  console.log(`Would you like to generate a 'project' or 'component' ?`.red);
-  prompt.get([{
-    name: 'type',
-    required: true
-  }], function (err, result) {
-  //
-  // Log the results.
-  //
-  if (result.type === `project` || result.type === `Project`) {
-    // user chose project
-    prompt.start();
-
-    prompt.get([{
-      name: 'name',
-      required: true
-    }], function (err, result) {
-    //
-    // Log the results.
-    //
-    var projectName = result.name
-    console.log(`Would you like to use 'scss or css'?`);
-    prompt.get([{
-      name: 'styling',
-      required: true
-    }], function (err, result) {
-    //
-    // Log the results.
-    //
-    var stylingVar = '';
-    if (result.styling === 'css'){
-      stylingVar = '--style:css'
-    }else{
-      stylingVar = '--style:scss'
-    }
-    console.log(`Generating project: ${projectName}`);
-
-     value = 'new';
-     argument3 = projectName;
-     argument4 = stylingVar;
-
-
-    //
-    //re-execute genScript with new values
-    genScript();
-    //
-    //
-
-    });
-  });
-}else if (result.type === `component` || result.type === `Component`){
-    // user chose component
-    prompt.start();
-
-    prompt.get([{
-      name: 'name',
-      required: true
-    }], function (err, result) {
-    //
-    // Log the results.
-    //
-    var projectName = result.name
-     console.log(`Would you like to use 'scss or css'?`);
-     prompt.get([{
-       name: 'styling',
-       required: true
-     }], function (err, result) {
-     //
-     // Log the results.
-     //
-     var stylingVar = '';
-     if (result.styling === 'css'){
-       stylingVar = '--style:css'
-     }else{
-       stylingVar = '--style:scss'
-     }
-     console.log(`Generating component: ${projectName}`);
-
-      value = '-c';
-      argument3 = projectName;
-      argument4 = stylingVar;
-
-     //
-     //re-execute genScript with new values
-     genScript();
-     //
-     //
-
-     });
-
-  });
-  }else{
-    console.log(`Please try again. Unfortunately I do not understand what you would like me to do for you...`.red);
-  }
-});
-}
 //end of genScript
 };
 
 function renameComponentFiles() {
 
-  var fileTypes = ['component.html','component.js', 'component.scss', 'module.js', 'controller.js']
+  var fileTypes = ['component.html', 'component.js', 'component.scss', 'module.js', 'controller.js']
 
   //0
-    console.log(`Reading ${argument3}.${fileTypes[0]} file`)
-    fs.readFile(`${argument3}.${fileTypes[0]}`, 'utf8', function (err,data) {
+  console.log(`Reading ${argument3}.${fileTypes[0]} file`)
+  fs.readFile(`${argument3}.${fileTypes[0]}`, 'utf8', function (err, data) {
     if (err) {
       return console.log(err);
     }
@@ -1156,102 +1153,102 @@ function renameComponentFiles() {
 
     console.log(`Writing ${argument4}.${fileTypes[0]} file`)
     fs.writeFile(`${argument4}.${fileTypes[0]}`, result, 'utf8', function (err) {
-       if (err) return console.log(err);
+      if (err) return console.log(err);
     });
   });
 
   //1
-      console.log(`Reading ${argument3}.${fileTypes[1]} file`)
-      fs.readFile(`${argument3}.${fileTypes[1]}`, 'utf8', function (err,data) {
-      if (err) {
-        return console.log(err);
-      }
+  console.log(`Reading ${argument3}.${fileTypes[1]} file`)
+  fs.readFile(`${argument3}.${fileTypes[1]}`, 'utf8', function (err, data) {
+    if (err) {
+      return console.log(err);
+    }
 
-      var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
+    var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
 
-      console.log(`Writing ${argument4}.${fileTypes[1]} file`)
-      fs.writeFile(`${argument4}.${fileTypes[1]}`, result, 'utf8', function (err) {
-         if (err) return console.log(err);
-      });
+    console.log(`Writing ${argument4}.${fileTypes[1]} file`)
+    fs.writeFile(`${argument4}.${fileTypes[1]}`, result, 'utf8', function (err) {
+      if (err) return console.log(err);
     });
+  });
 
-    //2
-        console.log(`Reading ${argument3}.${fileTypes[2]} file`)
-        fs.readFile(`${argument3}.${fileTypes[2]}`, 'utf8', function (err,data) {
-        if (err) {
-          return console.log(err);
-        }
+  //2
+  console.log(`Reading ${argument3}.${fileTypes[2]} file`)
+  fs.readFile(`${argument3}.${fileTypes[2]}`, 'utf8', function (err, data) {
+    if (err) {
+      return console.log(err);
+    }
 
-        var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
+    var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
 
-        console.log(`Writing ${argument4}.${fileTypes[2]} file`)
-        fs.writeFile(`${argument4}.${fileTypes[2]}`, result, 'utf8', function (err) {
-           if (err) return console.log(err);
-        });
-      });
+    console.log(`Writing ${argument4}.${fileTypes[2]} file`)
+    fs.writeFile(`${argument4}.${fileTypes[2]}`, result, 'utf8', function (err) {
+      if (err) return console.log(err);
+    });
+  });
 
-      //3
-          console.log(`Reading ${argument3}.${fileTypes[3]} file`)
-          fs.readFile(`${argument3}.${fileTypes[3]}`, 'utf8', function (err,data) {
-          if (err) {
-            return console.log(err);
-          }
+  //3
+  console.log(`Reading ${argument3}.${fileTypes[3]} file`)
+  fs.readFile(`${argument3}.${fileTypes[3]}`, 'utf8', function (err, data) {
+    if (err) {
+      return console.log(err);
+    }
 
-          var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
+    var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
 
-          console.log(`Writing ${argument4}.${fileTypes[3]} file`)
-          fs.writeFile(`${argument4}.${fileTypes[3]}`, result, 'utf8', function (err) {
-             if (err) return console.log(err);
-          });
-        });
+    console.log(`Writing ${argument4}.${fileTypes[3]} file`)
+    fs.writeFile(`${argument4}.${fileTypes[3]}`, result, 'utf8', function (err) {
+      if (err) return console.log(err);
+    });
+  });
 
-        //3
-            console.log(`Reading ${argument3}.${fileTypes[4]} file`)
-            fs.readFile(`${argument3}.${fileTypes[4]}`, 'utf8', function (err,data) {
-            if (err) {
-              return console.log(err);
-            }
+  //3
+  console.log(`Reading ${argument3}.${fileTypes[4]} file`)
+  fs.readFile(`${argument3}.${fileTypes[4]}`, 'utf8', function (err, data) {
+    if (err) {
+      return console.log(err);
+    }
 
-            var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
+    var result = data.replace(new RegExp(argument3, 'g'), `${argument4}`);
 
-            console.log(`Writing ${argument4}.${fileTypes[4]} file`)
-            fs.writeFile(`${argument4}.${fileTypes[4]}`, result, 'utf8', function (err) {
-               if (err) return console.log(err);
-            });
-          });
+    console.log(`Writing ${argument4}.${fileTypes[4]} file`)
+    fs.writeFile(`${argument4}.${fileTypes[4]}`, result, 'utf8', function (err) {
+      if (err) return console.log(err);
+    });
+  });
 
-          fs.remove(`./${argument3}.${fileTypes[0]}`, err => {
-        if (err) return console.error(err)
-
-          console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
-
-        })
-
-        fs.remove(`./${argument3}.${fileTypes[1]}`, err => {
-      if (err) return console.error(err)
-
-        console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
-
-      })
-
-      fs.remove(`./${argument3}.${fileTypes[2]}`, err => {
+  fs.remove(`./${argument3}.${fileTypes[0]}`, err = > {
     if (err) return console.error(err)
-
-      console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
-
-    })
-
-    fs.remove(`./${argument3}.${fileTypes[3]}`, err => {
-  if (err) return console.error(err)
 
     console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
 
-  })
+})
 
-  fs.remove(`./${argument3}.${fileTypes[4]}`, err => {
-if (err) return console.error(err)
+  fs.remove(`./${argument3}.${fileTypes[1]}`, err = > {
+    if (err) return console.error(err)
 
-  console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
+    console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
+
+})
+
+  fs.remove(`./${argument3}.${fileTypes[2]}`, err = > {
+    if (err) return console.error(err)
+
+    console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
+
+})
+
+  fs.remove(`./${argument3}.${fileTypes[3]}`, err = > {
+    if (err) return console.error(err)
+
+    console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
+
+})
+
+  fs.remove(`./${argument3}.${fileTypes[4]}`, err = > {
+    if (err) return console.error(err)
+
+    console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
 
 })
 
@@ -1263,66 +1260,65 @@ function updateComponentsJS(newFileName) {
 
   console.log(" 🔰  updating: ".cyan + "components.js".white);
 
-if (process.cwd().includes('client/app/components') === false){
-  process.chdir(`./client/app/components`);
-}
+  if (process.cwd().includes('client/app/components') === false) {
+    process.chdir(`./client/app/components`);
+  }
 
-    componentsArray = [];
-    genArr = [];
+  componentsArray = [];
+  genArr = [];
 
 
   // sync app.component with updates
-  fs.readdir(process.cwd(), function(err, items) {
-      genArr = items;
-      generateDirectArray(genArr);
+  fs.readdir(process.cwd(), function (err, items) {
+    genArr = items;
+    generateDirectArray(genArr);
   });
 
 
   function generateDirectArray(items) {
-      for (var i=0; i<items.length; i++) {
-          if (isDirectory(items[i])){
-          }else{
-              componentsArray.push(items[i]);
-          }
+    for (var i = 0; i < items.length; i++) {
+      if (isDirectory(items[i])) {
+      } else {
+        componentsArray.push(items[i]);
       }
-      importStringGenerator();
+    }
+    importStringGenerator();
   }
 
   function isDirectory(inputString) {
-      var str = inputString;
-      var patt = new RegExp("[.]");
-      var res = patt.test(str);
-      return res;
+    var str = inputString;
+    var patt = new RegExp("[.]");
+    var res = patt.test(str);
+    return res;
   }
 
-  String.prototype.capitalizeFirstLetter = function() {
-      return this.charAt(0).toUpperCase() + this.slice(1);
+  String.prototype.capitalizeFirstLetter = function () {
+    return this.charAt(0).toUpperCase() + this.slice(1);
   }
 
-  function importStringGenerator(){
-      if(typeof newFileName != 'undefined'){
-        componentsArray.push(`${newFileName}`);
+  function importStringGenerator() {
+    if (typeof newFileName != 'undefined') {
+      componentsArray.push(`${newFileName}`);
+    }
+
+    genString = "";
+    for (var i = 0; i < componentsArray.length; i++) {
+      genString = genString + `    import ${componentsArray[i].capitalizeFirstLetter()}Module from './${componentsArray[i]}/${componentsArray[i]}.module';\r`
+    }
+    listString = "";
+    for (var i = 0; i < componentsArray.length; i++) {
+
+      // check if last in list in order to not include comma
+      if (i === (componentsArray.length - 1)) {
+        listString = listString + `     ${componentsArray[i].capitalizeFirstLetter()}Module` + `.name \r`
+      } else {
+        listString = listString + `     ${componentsArray[i].capitalizeFirstLetter()}Module` + '.name, \r'
       }
 
-      genString = "";
-      for (var i=0; i<componentsArray.length; i++) {
-          genString = genString + `    import ${componentsArray[i].capitalizeFirstLetter()}Module from './${componentsArray[i]}/${componentsArray[i]}.module';\r`
-      }
-      listString = "";
-      for (var i=0; i<componentsArray.length; i++) {
-
-          // check if last in list in order to not include comma
-          if (i === (componentsArray.length - 1)){
-              listString = listString + `     ${componentsArray[i].capitalizeFirstLetter()}Module` + `.name \r`
-          }else{
-              listString = listString + `     ${componentsArray[i].capitalizeFirstLetter()}Module` + '.name, \r'
-          }
-
-      }
+    }
 
 
-
-      fs.writeFile("components.js", `
+    fs.writeFile("components.js", `
   import angular from 'angular';
   ${genString}
 
@@ -1332,11 +1328,11 @@ if (process.cwd().includes('client/app/components') === false){
 
   export default ComponentsModule;
 
-  `, function(err) {
-          if(err) {
-              return console.log(` ❌  failed to update due to error:  ${err}`);
-          }
-          console.log(" 🔰  updated: ".cyan + "components.js".white);
-      });
+  `, function (err) {
+      if (err) {
+        return console.log(` ❌  failed to update due to error:  ${err}`);
+      }
+      console.log(" 🔰  updated: ".cyan + "components.js".white);
+    });
   }
 }

@@ -4,7 +4,7 @@
   "description": "A cli for Angular 1.5.",
   "main": "index.js",
   "scripts": {
-    "serve":"webpack && webpack-dev-server --content-base client/",
+    "serve": "webpack && webpack-dev-server --content-base client/",
     "Serve": "gen serve",
     "Create Component": "gen comp"
   },
@@ -31,11 +31,11 @@
     "prompt": "^1.0.0",
     "touch": "^1.0.0",
     "mkdirp": "0.5.1",
-    "colors":"1.1.2",
-    "request":"2.79.0",
-    "fs-extra":"2.0.0",
-    "node-cmd":"1.2.0",
-    "app-root-path":"2.0.1",
+    "colors": "1.1.2",
+    "request": "2.79.0",
+    "fs-extra": "2.0.0",
+    "node-cmd": "1.2.0",
+    "app-root-path": "2.0.1",
     "webpack": "1.13.1"
   },
   "devDependencies": {
