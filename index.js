@@ -55,6 +55,82 @@ function genScript() {
       else
         process.chdir(argument3),
 
+        //generte dockerfile
+        fs.writeFile("Dockerfile", `FROM node:6.5
+
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+COPY . /usr/src/app
+
+RUN npm set progress=false
+RUN npm install
+
+EXPOSE 8080
+
+CMD ["npm", "run", "startContainer"]`, function (err) {
+          if (err) {
+            return console.log(` ❌  failed to generate due to error:  ${err}`);
+          }
+          console.log(" 🎁  created: ".cyan + "Dockerfile".white);
+        });
+
+
+        //generte deploy.js
+        fs.writeFile("deploy.js", `var request = require('request');
+
+var headers = {
+  'Content-Type': 'application/json'
+};
+
+var dataString = ''{"docker_tag": '$''{process.env.CIRCLE_BRANCH}"}'';
+
+var options = {
+  url: '', // add your docker url aka 'https://registry.hub.docker.com/u/{{the rest of your url}}'
+  method: 'POST',
+  headers: headers,
+  body: dataString
+};
+
+function callback(error, response, body) {
+  if (!error && response.statusCode == 200) {
+    console.log(body);
+  }
+}
+
+request(options, callback);`, function (err) {
+          if (err) {
+            return console.log(` ❌  failed to generate due to error:  ${err}`);
+          }
+          console.log(" 🎁  created: ".cyan + "deploy.js".white);
+        });
+
+        //generte circle.yml
+        fs.writeFile("circle.yml", `machine:
+  node:
+    version: 6.5
+
+dependencies:
+  cache_directories:
+    - node_modules
+  override:
+    - npm prune && npm install
+
+test:
+  override:
+    - echo 'test needed'
+
+deployment:
+  staging:
+    branch: [develop, master]
+    commands:
+      - npm run deploy`, function (err) {
+          if (err) {
+            return console.log(` ❌  failed to generate due to error:  ${err}`);
+          }
+          console.log(" 🎁  created: ".cyan + "circle.yml".white);
+        });
+
           //generte .gitignore
           fs.writeFile(".gitignore", `.DS_Store
 .tmp
@@ -82,192 +158,122 @@ client/bundle.js.map
 
 const isDev = process.env.NODE_ENV !== 'production';
 
-module.exports = {
-  entry: path.join(libPath, '/app/app.module.js'),
-  output: {
-    path: path.join(wwwPath),
-    filename: isDev ? 'bundle.js' : 'bundle.[chunkHash].js'
-  },
-  module: {
-    loaders: [{
-      test: /\\.html$/, loader: 'raw'
-    }, {
-      test: /\\.(png|jpg)$/,
-      loader: 'file?name=img/[name].[ext]' // inline base64 URLs for <=10kb images, direct URLs for the rest
-    },{
-      test: /\\.scss$/,loader: 'style!css!sass'
-    }, {
-      test: /\\.css$/, loader: 'style!css'
-    }, {
-      test: /\\.js$/,
-      exclude: /(node_modules)/,
-      loader: "ng-annotate?add=true!babel"
-    }, {
-      test: [/fontawesome-webfont\\.svg/, /fontawesome-webfont\\.eot/, /fontawesome-webfont\\.ttf/, /fontawesome-webfont\\.woff/, /fontawesome-webfont\\.woff2/],
-      loader: 'file?name=fonts/[name].[ext]'
+if (isDev) {
+  module.exports = {
+    entry: path.join(libPath, '/app/app.module.js'),
+    output: {
+      path: path.join(wwwPath),
+      filename: 'bundle.js'
     },
-      { test: /\\.(ttf|otf|eot|svg|woff(2)?)$/, loader: 'url' }]
-  },
-  plugins: [
-
-    // HtmlWebpackPlugin: Simplifies creation of HTML files to serve your webpack bundles : https://www.npmjs.com/package/html-webpack-plugin
-    new HtmlWebpackPlugin({
-      filename: 'index.html',
-      pkg: pkg,
-      template: path.join(libPath, 'index.ejs'),
-      inject: true
-    }),
-
-    // OccurenceOrderPlugin: Assign the module and chunk ids by occurrence count. : https://webpack.github.io/docs/list-of-plugins.html#occurenceorderplugin
-    new webpack.optimize.OccurenceOrderPlugin(),
-
-    // Deduplication: find duplicate dependencies & prevents duplicate inclusion : https://github.com/webpack/docs/wiki/optimization#deduplication
-    new webpack.optimize.DedupePlugin()
-  ]
-};
-`, function (err) {
-        if (err) {
-          return console.log(` ❌  failed to generate due to error:  ${err}`);
-        }
-        console.log(" 🎁  created: ".cyan + "webpack.config.js".white);
-      });
-
-      //generte README.md
-      fs.writeFile("README.md", `
-
-  ___________
-  # ANGULAR-1.5-CLI
-  ###### created by  Andrew Wormald
-
-  ### Installation:
-
-
-  npm install angular-1.5-cli -g
-
-  You need to install this globally (aka using -g at the end) in order for this to work efficiently and enhance your experience.
-
-  ___________
-
-  ### Commands:
-
-  #### Generate Project:
-
-  gen new {{PROJECT NAME}}
-  // Generates a new project using scss styling
-
-  gen new {{PROJECT NAME}} --style:css
-
-   // Generates a new project using css styling
-
-
-
-  #### Generate Component:
-  Make sure that you are at the base of the project directory
-
-  gen {{COMPONENT NAME}}
-
-  // Generates a new component using scss styling
-
-
-
-  gen {{COMPONENT NAME}} --style:css
-
-  // Generates a new component using css styling
-
-  ___________
-`, function (err) {
-        if (err) {
-          return console.log(` ❌  failed to generate due to error:  ${err}`);
-        }
-        console.log(" 🎁  created: ".cyan + "README.md".white);
-      });
-
-      fs.writeFile('spec.bundle.js', `/*
- * When testing with Webpack and ES6, we have to do some
- * preliminary setup. Because we are writing our tests also in ES6,
- * we must transpile those as well, which is handled inside
- * 'karma.conf.js' via the 'karma-webpack' plugin. This is the entry
- * file for the Webpack tests. Similarly to how Webpack creates a
- * 'bundle.js' file for the compressed app source files, when we
- * run our tests, Webpack, likewise, compiles and bundles those tests here.
-*/
-
-import angular from 'angular';
-
-// Built by the core Angular team for mocking dependencies
-import mocks from 'angular-mocks';
-
-// We use the context method on 'require' which Webpack created
-// in order to signify which files we actually want to require or import.
-// Below, 'context' will be a/an function/object with file names as keys.
-// Using that regex, we scan within 'client/app' and target
-// all files ending with '.spec.js' and trace its path.
-// By passing in true, we permit this process to occur recursively.
-let context = require.context('./client/app', true, /\\.spec\\.js/);
-
-// Get all files, for each file, call the context function
-// that will require the file and load it here. Context will
-// loop and require those spec files here.
-context.keys().forEach(context);
-`, function (err) {
-        if (err) {
-          return console.log(` ❌  failed to generate due to error:  ${err}`);
-        }
-        console.log(" 🎁  created: ".cyan + "spec.bundle.js".white);
-      });
-
-
-// generate karma file
-      fs.writeFile('karma.conf.js', `module.exports = function(config) {
-config.set({
-  basePath: '',
-  frameworks: ['jasmine'],
-  files: [{
-    pattern: 'spec.bundle.js',
-    watched: false
-  }],
-  exclude: [],
-  plugins: [
-    require("karma-jasmine"),
-    require("karma-phantomjs-launcher"),
-    require("karma-spec-reporter"),
-    require("karma-sourcemap-loader"),
-    require("karma-webpack")
-  ],
-  preprocessors: {
-    'spec.bundle.js': ['webpack', 'sourcemap']
-  },
-  webpack: {
-    devtool: 'inline-source-map',
     module: {
       loaders: [{
-        test: /\\.js/,
-        exclude: [/app\\/lib/, /node_modules/],
-        loader: 'babel'
+        test: /\\.html$/, loader: 'raw'
       }, {
-        test: /\\.html/,
-        loader: 'raw'
+        test: /\\.(png|jpg)$/,
+        loader: 'file?name=img/[name].[ext]' // inline base64 URLs for <=10kb images, direct URLs for the rest
+      },{
+        test: /\\.scss$/,loader: 'style!css!sass'
       }, {
-        test: /\\.styl$/,
-        loader: 'style!css!stylus'
+        test: /\\.css$/, loader: 'style!css'
       }, {
-        test: /\\.scss$/,
-        loaders: ['style', 'css', 'sass']
-      }]
-    }
-  },
-  webpackServer: {
-    noInfo: true // prevent console spamming when running in Karma!
-  },
-  reporters: ['spec'],
-  port: 9876,
-  colors: true,
-  logLevel: config.LOG_INFO,
-  autoWatch: false,
-  browsers: ['PhantomJS'],
-  singleRun: true
-});
-};
+        test: /\\.js$/,
+        exclude: /(node_modules)/,
+        loader: "ng-annotate?add=true!babel"
+      }, {
+        test: [/fontawesome-webfont\\.svg/, /fontawesome-webfont\\.eot/, /fontawesome-webfont\\.ttf/, /fontawesome-webfont\\.woff/, /fontawesome-webfont\\.woff2/],
+        loader: 'file?name=fonts/[name].[ext]'
+      },
+        { test: /\\.(ttf|otf|eot|svg|woff(2)?)$/, loader: 'url' }]
+    },
+    plugins: [
+
+      new webpack.ProvidePlugin({
+        'window.Masonry': 'Masonry'
+      }),
+
+      // HtmlWebpackPlugin: Simplifies creation of HTML files to serve your webpack bundles : https://www.npmjs.com/package/html-webpack-plugin
+      new HtmlWebpackPlugin({
+        filename: 'index.html',
+        pkg: pkg,
+        template: path.join(libPath, 'index.ejs'),
+        inject: true
+      }),
+
+      // OccurenceOrderPlugin: Assign the module and chunk ids by occurrence count. : https://webpack.github.io/docs/list-of-plugins.html#occurenceorderplugin
+      new webpack.optimize.OccurenceOrderPlugin(),
+
+      // Deduplication: find duplicate dependencies & prevents duplicate inclusion : https://github.com/webpack/docs/wiki/optimization#deduplication
+      new webpack.optimize.DedupePlugin()
+    ]
+  };
+}else{
+  module.exports = {
+    entry: path.join(libPath, '/app/app.module.js'),
+    context: path.resolve(__dirname, './client'),
+    output: {
+      filename: 'bundle.[hash].js',
+      hashDigestLength: 7,
+      path: path.join(wwwPath),
+      publicPath: '/'
+    },
+    module: {
+      loaders: [{
+        test: /\\.html$/, loader: 'raw'
+      }, {
+        test: /\\.(png|jpg)$/,
+        loader: 'file?name=img/[name].[ext]' // inline base64 URLs for <=10kb images, direct URLs for the rest
+      },{
+        test: /\\.scss$/,loader: 'style!css!sass'
+      }, {
+        test: /\\.css$/, loader: 'style!css'
+      }, {
+        test: /\\.js$/,
+        exclude: /(node_modules)/,
+        loader: "ng-annotate?add=true!babel"
+      }, {
+        test: [/fontawesome-webfont\\.svg/, /fontawesome-webfont\\.eot/, /fontawesome-webfont\\.ttf/, /fontawesome-webfont\\.woff/, /fontawesome-webfont\\.woff2/],
+        loader: 'file?name=fonts/[name].[ext]'
+      },
+        { test: /\\.(ttf|otf|eot|svg|woff(2)?)$/, loader: 'url' }]
+    },
+    plugins: [
+
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify('production')
+      }),
+
+      new webpack.ProvidePlugin({
+        'window.Masonry': 'Masonry'
+      }),
+
+      new webpack.optimize.CommonsChunkPlugin('common.js'),
+      new webpack.optimize.DedupePlugin(),
+      new webpack.optimize.UglifyJsPlugin(),
+      new webpack.optimize.AggressiveMergingPlugin(),
+      new CompressionPlugin({
+        asset: "[path].gz[query]",
+        algorithm: "gzip",
+        test: /\\.js$|\\.css$|\\.html$/,
+        threshold: 10240,
+        minRatio: 0.8
+      }),
+
+      // HtmlWebpackPlugin: Simplifies creation of HTML files to serve your webpack bundles : https://www.npmjs.com/package/html-webpack-plugin
+      new HtmlWebpackPlugin({
+        filename: 'index.html',
+        pkg: pkg,
+        template: path.join(libPath, 'index.ejs'),
+        inject: true
+      }),
+
+      // OccurenceOrderPlugin: Assign the module and chunk ids by occurrence count. : https://webpack.github.io/docs/list-of-plugins.html#occurenceorderplugin
+      new webpack.optimize.OccurenceOrderPlugin(),
+
+      // Deduplication: find duplicate dependencies & prevents duplicate inclusion : https://github.com/webpack/docs/wiki/optimization#deduplication
+      new webpack.optimize.DedupePlugin()
+    ]
+  };
+}
 `, function (err) {
         if (err) {
           return console.log(` ❌  failed to generate due to error:  ${err}`);
@@ -286,25 +292,27 @@ config.set({
     "angular": "1.5.7",
     "angular-animate": "1.5.7",
     "angular-mocks": "1.5.7",
-    "angular-ui-router": "^0.3.1",
+    "angular-ui-router": "0.3.1",
     "bootstrap-css-only": "3.3.6",
-    "lodash": "^4.13.1",
-    "normalize.css": "4.1.1"
+    "lodash": "4.13.1",
+    "normalize.css": "4.1.1",
+    "http-server": "^0.9.0"
   },
   "devDependencies": {
     "angular-mocks": "1.5.7",
     "babel-core": "6.10.4",
+    "http-server": "0.9.0",
     "babel-loader": "6.2.4",
-    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-es2015": "6.9.0",
     "browser-sync": "2.13.0",
-    "browser-sync-webpack-plugin": "^1.1.4",
-    "css-loader": "^0.23.1",
+    "browser-sync-webpack-plugin": "1.1.4",
+    "css-loader": "0.23.1",
     "file-loader": "0.9.0",
     "fs-walk": "0.0.1",
     "gulp": "3.9.1",
     "gulp-rename": "1.2.2",
     "gulp-template": "4.0.0",
-    "html-webpack-plugin": "^2.28.0",
+    "html-webpack-plugin": "2.28.0",
     "jasmine": "2.4.1",
     "jasmine-core": "2.4.1",
     "karma": "1.1.0",
@@ -313,26 +321,29 @@ config.set({
     "karma-sourcemap-loader": "0.3.7",
     "karma-spec-reporter": "0.0.26",
     "karma-webpack": "1.7.0",
-    "less": "^2.7.1",
-    "less-loader": "^2.2.3",
+    "less": "2.7.1",
+    "less-loader": "2.2.3",
     "ng-annotate-loader": "0.1.0",
     "node-libs-browser": "1.0.0",
-    "node-sass": "^4.4.0",
+    "node-sass": "4.4.0",
     "phantomjs-prebuilt": "2.1.7",
     "raw-loader": "0.5.1",
     "run-sequence": "1.2.1",
-    "sass-loader": "^4.1.1",
-    "style-loader": "^0.13.1",
+    "sass-loader": "4.1.1",
+    "style-loader": "0.13.1",
     "url-loader": "0.5.7",
     "webpack": "1.13.1",
-    "webpack-dev-server": "^1.16.3",
+    "webpack-dev-server": "1.16.3",
     "webpack-stream": "3.2.0",
     "yargs": "4.7.1"
   },
   "scripts": {
     "start": "webpack && webpack-dev-server --content-base client/ --hot --inline",
     "serve": "webpack && webpack-dev-server --content-base client/ --hot --inline",
-    "create Component": "gen comp"
+    "create Component": "gen comp",
+    "build": "webpack -p --config ./webpack.config.js --progress",
+    "startContainer": "npm run build && http-server ./build",
+    "deploy": "node deploy.js"
   },
   "keywords": [
     "angular",
@@ -420,30 +431,28 @@ config.set({
 
 
         // generate index.html
-        fs.writeFile("index.html", `
-    <!doctype html>
-      <html lang="en">
-        <head>
-          <meta charset="utf-8">
-          <title>Welcome | Angular-1.5-cli</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          <meta name="mobile-web-app-capable" content="yes">
-          <meta name="apple-mobile-web-app-capable" content="yes">
-          <meta name="apple-mobile-web-app-status-bar-style" content="black">
-          <meta name="description" content="A cli for Angular 1.5">
-          <link rel="icon" href="favicon.jpg">
-          <base href="/">
-        </head>
-        <body ng-app="app" ng-strict-di ng-cloak>
+        fs.writeFile("index.html", `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Welcome | Angular-1.5-cli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="description" content="A cli for Angular 1.5">
+  <link rel="icon" href="favicon.jpg">
+  <base href="/">
+</head>
+<body ng-app="app" ng-strict-di ng-cloak>
 
-          <app>
-            Loading...
-          </app>
+<app>
+  Loading...
+</app>
 
-          <script src="bundle.js"></script>
-        </body>
-      </html>
-  `, function (err) {
+<script src="bundle.js"></script>
+</body>
+</html>`, function (err) {
           if (err) {
             return console.log(` ❌  failed to generate due to error:  ${err}`);
           }
@@ -638,16 +647,14 @@ background-color: #C3002F;
           //build component.js
           if (argument3 === "--style:css" || argument4 === "--style:css") {
             // build component.js with import of css folder
-            fs.writeFile(scriptName + ".component.js", `
-      import template from './app.component.html';
-      import './app.component.scss';
+            fs.writeFile(scriptName + ".component.js", `import template from './app.component.html';
+import './app.component.scss';
 
-      const AppComponent = {
-        template
-      };
+const AppComponent = {
+  template
+};
 
-      export default AppComponent;
-      `, function (err) {
+export default AppComponent;`, function (err) {
               if (err) {
                 return console.log(` ❌  failed to generate due to error:  ${err}`);
               }
@@ -655,16 +662,14 @@ background-color: #C3002F;
             });
           } else {
             // build component.js with import of scss folder
-            fs.writeFile(scriptName + ".component.js", `
-      import template from './app.component.html';
-      import './app.component.scss';
+            fs.writeFile(scriptName + ".component.js", `import template from './app.component.html';
+import './app.component.scss';
 
-      const AppComponent = {
-        template
-      };
+const AppComponent = {
+  template
+};
 
-      export default AppComponent;
-      `, function (err) {
+export default AppComponent;`, function (err) {
               if (err) {
                 return console.log(` ❌  failed to generate due to error:  ${err}`);
               }
@@ -673,18 +678,15 @@ background-color: #C3002F;
           }
 
           //build module.js
-          fs.writeFile(scriptName + ".module.js", `
-      import 'bootstrap-css-only';
-      import 'normalize.css';
-      import angular from 'angular';
-      import appComponent from './app.component';;
-      import ComponentsModule from './components/components';
+          fs.writeFile(scriptName + ".module.js", `import 'bootstrap-css-only';
+import 'normalize.css';
+import angular from 'angular';
+import appComponent from './app.component';
+import ComponentsModule from './components/components';
 
-      angular.module('app', [
-          ComponentsModule.name
-        ])
-        .component('app', appComponent);
-        `, function (err) {
+angular.module('app', [
+  ComponentsModule.name
+]).component('app', appComponent);`, function (err) {
             if (err) {
               return console.log(` ❌  failed to generate due to error:  ${err}`);
             }
@@ -767,17 +769,14 @@ background-color: #C3002F;
       }
 
 
-      fs.writeFile("components.js", `
-    import angular from 'angular';
+      fs.writeFile("components.js", `import angular from 'angular';
 ${genString}
 
-    const ComponentsModule = angular.module('app.components',[
-${listString}
-    ]);
+const ComponentsModule = angular.module('app.components',[
+  ${listString}
+]);
 
-    export default ComponentsModule;
-
-    `, function (err) {
+export default ComponentsModule;`, function (err) {
         if (err) {
           return console.log(` ❌  failed to update due to error:  ${err}`);
         }
@@ -819,9 +818,28 @@ ${listString}
         });
       }
 
+if (argument3 === "--style:css" || argument4 === "--style:css") {
+  // include component.css
+  fs.writeFile(argument3 + ".component.js", `import template from './${argument3}.component.html';
+import controller from './${argument3}.controller.js';
+import './${argument3}.component.css';
 
-      //build component.js
-      fs.writeFile(argument3 + ".component.js", `import template from './${argument3}.component.html';
+let ${argument3}Component = {
+  restrict: 'E',
+  bindings: {},
+  template,
+  controller,
+  controllerAs: '${argument3}Controller'
+};
+export default ${argument3}Component;`, function (err) {
+    if (err) {
+      return console.log(` ❌  failed to generate due to error:  ${err}`);
+    }
+    console.log(" 🎁  created: ".cyan + argument3.white + ".component.js".white);
+  });
+} else {
+  // include component.scss
+  fs.writeFile(argument3 + ".component.js", `import template from './${argument3}.component.html';
 import controller from './${argument3}.controller.js';
 import './${argument3}.component.scss';
 
@@ -833,11 +851,14 @@ let ${argument3}Component = {
   controllerAs: '${argument3}Controller'
 };
 export default ${argument3}Component;`, function (err) {
-        if (err) {
-          return console.log(` ❌  failed to generate due to error:  ${err}`);
-        }
-        console.log(" 🎁  created: ".cyan + argument3.white + ".component.js".white);
-      });
+    if (err) {
+      return console.log(` ❌  failed to generate due to error:  ${err}`);
+    }
+    console.log(" 🎁  created: ".cyan + argument3.white + ".component.js".white);
+  });
+}
+
+
 
       //build module.js
       fs.writeFile(argument3 + ".module.js", `import angular from 'angular';
@@ -951,7 +972,14 @@ export default ${argument3}Module;`, function (err) {
 
       });
     }
-  } else if (value === '-r' || value === 'remove') {
+  } else if (value === 'copyTo' || value === 'transferTo') {
+
+    fs.copy(`${argument3}`, `${argument4}`, function (err) {
+      if (err) return console.error(err)
+        console.log('Success:'.green + ' created:'.white + './dist/assets')
+    });
+
+  }else if (value === '-r' || value === 'remove') {
 
     function camelize(str) {
       return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function (letter, index) {
@@ -988,7 +1016,7 @@ export default ${argument3}Module;`, function (err) {
         //
 
         process.chdir(`./client/app/components`);
-        fs.remove(`./${argument3}`, err = > {
+        fs.remove(`./${argument3}`, err => {
           if (err) return console.error(err)
 
           console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
@@ -1033,7 +1061,279 @@ export default ${argument3}Module;`, function (err) {
       renameComponentFiles();
     });
 
-  } else if (value === 'update' && argument3 === 'components.js') {
+  }else if (value === '-s' || value === 'service') {
+    process.chdir(`./client/app`);
+
+    function camelize(str) {
+      return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function (letter, index) {
+        return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+      }).replace(/\s+/g, '');
+    }
+
+    tempValue = 'noName';
+
+    if (argument3 === '--post' || argument3 === '--get'){
+      tempValue = argument3
+      argument3 = argument4
+      argument4 = tempValue
+    }
+
+    argument3 = camelize(`${argument3}`)
+
+
+    // check if services directory. If there is none then create one and move to it
+
+fs.stat('services', function(err, stat) {
+  if(err == null) {
+      // FILE EXISTS
+      process.chdir('services');
+
+
+
+      if (argument4 === '--get') {
+        //create a GET service
+
+        mkdirp(`${argument3}`, function (err) {
+          process.chdir(`${argument3}`);
+          fs.writeFile(`${argument3}.js`, `class ${argument3}Service {
+  constructor($http, $q) {
+    ngInject';
+
+    //INIT DEPENDENCIES
+    this.$http = $http;
+    this.$q = $q;
+  }
+
+  getData() {
+    const defer = this.$q.defer();
+    this.$http.get('https://angular-1-5-cli.firebaseio.com/data.json')
+      .then((response) => {
+      const data = response.data;
+    defer.resolve(data);
+  })
+  .catch((response) => {
+      defer.reject(response.statusText);
+  });
+    return defer.promise;
+  }
+}
+
+export default ${argument3}Service;`, function (err) {
+            if (err) {
+              return console.log(` ❌  failed to generate due to error:  ${err}`);
+            }
+            console.log(" 🎁  created: ".cyan + `${argument3}.js`.white);
+            // Re-Create Services.js
+            // 1. get list of all services
+            // 2. write them into the services
+            updateServicesJS(argument3)
+          });
+        });
+
+
+      } else if (argument4 === '--post') {
+        //create a POST service
+        mkdirp(`${argument3}`, function (err) {
+          process.chdir(argument3)
+
+          fs.writeFile(`${argument3}.js`, `class ${argument3}Service {
+  constructor($http, $q) {
+    'ngInject';
+
+    //INIT DEPENDENCIES
+    this.$http = $http;
+    this.$q = $q;
+  }
+
+  getData(data) {
+    const defer = this.$q.defer();
+    this.$http.post('http://httpbin.org/post', data)
+      .then((response) => {
+      const data = response.data;
+    defer.resolve(data);
+  })
+  .catch((response) => {
+      defer.reject(response.statusText);
+  });
+    return defer.promise;
+  }
+}
+
+export default ${argument3}Service;`, function (err) {
+            if (err) {
+              return console.log(` ❌  failed to generate due to error:  ${err}`);
+            }
+            console.log(" 🎁  created: ".cyan + `${argument3}.js`.white);
+            // Re-Create Services.js
+            // 1. get list of all services
+            // 2. write them into the services
+            updateServicesJS(argument3)
+          });
+        });
+      } else {
+        // no type specified
+        mkdirp(`${argument3}`, function (err) {
+          process.chdir(argument3)
+
+          fs.writeFile(`${argument3}.js`, `class ${argument3}Service {
+  constructor() {
+    'ngInject';
+
+  }
+}
+
+export default ${argument3}Service;`, function (err) {
+            if (err) {
+              return console.log(` ❌  failed to generate due to error:  ${err}`);
+            }
+            console.log(" 🎁  created: ".cyan + `${argument3}.js`.white);
+            // Re-Create Services.js
+            // 1. get list of all services
+            // 2. write them into the services
+            updateServicesJS(argument3)
+          });
+        });
+
+      }
+
+
+  } else if(err.code == 'ENOENT') {
+      // FILE DOES NOT EXIST
+      mkdirp("services", function (err) {
+        console.log(" 🎁  created: ".cyan + "services/config".white);
+        process.chdir('services');
+
+        if (argument4 === '--get') {
+          //create a GET service
+
+          mkdirp(`${argument3}`, function (err) {
+            process.chdir(`${argument3}`);
+            fs.writeFile(`${argument3}.js`, `class ${argument3}Service {
+  constructor($http, $q) {
+    'ngInject';
+
+    //INIT DEPENDENCIES
+    this.$http = $http;
+    this.$q = $q;
+  }
+
+  getData() {
+    const defer = this.$q.defer();
+    this.$http.get('https://angular-1-5-cli.firebaseio.com/data.json')
+      .then((response) => {
+      const data = response.data;
+    defer.resolve(data);
+  })
+  .catch((response) => {
+      defer.reject(response.statusText);
+  });
+    return defer.promise;
+  }
+}
+
+export default ${argument3}Service;`, function (err) {
+              if (err) {
+                return console.log(` ❌  failed to generate due to error:  ${err}`);
+              }
+              console.log(" 🎁  created: ".cyan + `${argument3}.js`.white);
+              // Re-Create Services.js
+              // 1. get list of all services
+              // 2. write them into the services
+
+              updateServicesJS(argument3)
+            });
+          });
+
+
+        } else if (argument4 === '--post') {
+          //create a POST service
+          mkdirp(`${argument3}`, function (err) {
+            process.chdir(argument3)
+
+            fs.writeFile(`${argument3}.js`, `class ${argument3}Service {
+  constructor($http, $q) {
+    'ngInject';
+
+    //INIT DEPENDENCIES
+    this.$http = $http;
+    this.$q = $q;
+  }
+
+  getData(data) {
+    const defer = this.$q.defer();
+    this.$http.post('http://httpbin.org/post', data)
+      .then((response) => {
+      const data = response.data;
+    defer.resolve(data);
+  })
+  .catch((response) => {
+      defer.reject(response.statusText);
+  });
+    return defer.promise;
+  }
+}
+
+export default ${argument3}Service;`, function (err) {
+              if (err) {
+                return console.log(` ❌  failed to generate due to error:  ${err}`);
+              }
+              console.log(" 🎁  created: ".cyan + `${argument3}.js`.white);
+
+              // Re-Create Services.js
+              // 1. get list of all services
+              // 2. write them into the services
+
+              updateServicesJS(argument3)
+            });
+          });
+        } else {
+          // no type specified
+          mkdirp(`${argument3}`, function (err) {
+            process.chdir(argument3)
+
+            fs.writeFile(`${argument3}.js`, `class ${argument3}Service {
+  constructor() {
+    'ngInject';
+
+  }
+}
+
+export default ${argument3}Service;`, function (err) {
+              if (err) {
+                return console.log(` ❌  failed to generate due to error:  ${err}`);
+              }
+              console.log(" 🎁  created: ".cyan + `${argument3}.js`.white);
+              // Re-Create Services.js
+              // 1. get list of all services
+              // 2. write them into the services
+
+              updateServicesJS(argument3)
+            });
+          });
+
+        }
+
+
+
+        });
+
+  } else {
+      console.log('Error: ', err.code);
+  }
+});
+
+
+
+
+
+
+    // take name given and typ and create service (POST or GET request)
+
+
+
+
+
+  }else if (value === 'update' && argument3 === 'components.js') {
     updateComponentsJS()
   } else {
     //promt user to find out what they want to generate
@@ -1217,41 +1517,117 @@ function renameComponentFiles() {
     });
   });
 
-  fs.remove(`./${argument3}.${fileTypes[0]}`, err = > {
+  fs.remove(`./${argument3}.${fileTypes[0]}`, err => {
     if (err) return console.error(err)
 
     console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
 
 })
 
-  fs.remove(`./${argument3}.${fileTypes[1]}`, err = > {
+  fs.remove(`./${argument3}.${fileTypes[1]}`, err => {
     if (err) return console.error(err)
 
     console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
 
 })
 
-  fs.remove(`./${argument3}.${fileTypes[2]}`, err = > {
+  fs.remove(`./${argument3}.${fileTypes[2]}`, err => {
     if (err) return console.error(err)
 
     console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
 
 })
 
-  fs.remove(`./${argument3}.${fileTypes[3]}`, err = > {
+  fs.remove(`./${argument3}.${fileTypes[3]}`, err => {
     if (err) return console.error(err)
 
     console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
 
 })
 
-  fs.remove(`./${argument3}.${fileTypes[4]}`, err = > {
+  fs.remove(`./${argument3}.${fileTypes[4]}`, err => {
     if (err) return console.error(err)
 
     console.log(`Deleted ${colors.red.strikethrough(`${argument3}`)}`)
 
 })
 
+}
+
+
+// update services.js
+function updateServicesJS(newFileName) {
+
+  console.log(" 🔰  updating: ".cyan + "components.js".white);
+
+  if (process.cwd().includes('client/app/services') === false) {
+    process.chdir(`./client/app/services`);
+  }
+
+  if (process.cwd().includes(`client/app/services/${newFileName}`) === true) {
+    process.chdir('..');
+  }
+
+  componentsArray = [];
+  genArr = [];
+
+
+  // sync with updates
+  fs.readdir(process.cwd(), function (err, items) {
+    genArr = items;
+    generateDirectArray(genArr);
+  });
+
+
+  function generateDirectArray(items) {
+    for (var i = 0; i < items.length; i++) {
+      if (isDirectory(items[i])) {
+      } else {
+        componentsArray.push(items[i]);
+      }
+    }
+    importStringGenerator();
+  }
+
+  function isDirectory(inputString) {
+    var str = inputString;
+    var patt = new RegExp("[.]");
+    var res = patt.test(str);
+    return res;
+  }
+
+  function importStringGenerator() {
+
+    genString = "";
+    for (var i = 0; i < componentsArray.length; i++) {
+      genString = genString + `import ${componentsArray[i]}Service from './${componentsArray[i]}/${componentsArray[i]}';\r`
+    }
+
+    listString = "";
+    for (var i = 0; i < componentsArray.length; i++) {
+
+      // check if last in list in order to not include comma
+      if (i === (componentsArray.length - 1)) {
+        listString = listString + `  .service('${componentsArray[i]}Service', ${componentsArray[i]}Service);` + `\r`
+      } else {
+        listString = listString + `  .service('${componentsArray[i]}Service', ${componentsArray[i]}Service)` + `\r`
+      }
+    }
+
+
+    fs.writeFile("services.js", `import angular from 'angular';
+${genString}
+
+const ServicesModule = angular.module('app.services', [])
+${listString}
+
+export default ServicesModule;`, function (err) {
+      if (err) {
+        return console.log(` ❌  failed to update due to error:  ${err}`);
+      }
+      console.log(" 🔰  updated: ".cyan + "services.js".white);
+    });
+  }
 }
 
 
@@ -1318,15 +1694,14 @@ function updateComponentsJS(newFileName) {
     }
 
 
-    fs.writeFile("components.js", `
-  import angular from 'angular';
-  ${genString}
+    fs.writeFile("components.js", `import angular from 'angular';
+${genString}
 
-  const ComponentsModule = angular.module('app.components',[
+const ComponentsModule = angular.module('app.components',[
   ${listString}
-  ]);
+]);
 
-  export default ComponentsModule;
+export default ComponentsModule;
 
   `, function (err) {
       if (err) {

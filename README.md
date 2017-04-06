@@ -19,42 +19,26 @@ npm run serve
 This will run webpack and serve up the app on http://localhost:8080/.
 
 ___________
-
-#### Version 1.5 update:
-<br>
+### Version 1.6 update:
 
 
-* Clone components with custom name
+##### Generate Services on the fly!
 
-Clone a component from the project. This command will also automatically update the components.js file. To find out more read below...
+Generate a serive on the fly! You can generate 3 types of templates for the service.
 
-<br><br>
+1. Generate a plain service template
 
+2. Generate a Get request service template with '--get'
 
-#### Version 1.4 update:
-<br>
-
-
-* Remove components
-
-Remove a component from the project. This command will also automatically update the components.js file. To find out more read below...
+3. Generate a Post request service template with '--post'
 
 <br>
 
-* Update components.js file
+##### Comes with docker support built in and ready to go!
 
-This would be used in the case of you manually removing/deleting a component directory. You would need to remove that component from the components.js file still. Now you can do that with a cli command!
-
-
-___________
-
-#### Future Development List for Angular-1.5-cli:
-<br>
-
-* Generate Directives
+You just need to add you docker url in the 'deploy.js' file!
 
 
-* Generate Services
 ___________
 
 ### Commands:
@@ -89,6 +73,39 @@ gen -c {{COMPONENT NAME}} --style:css
 // Generates a new component using css styling
 ```
 
+#### Generate Services:
+Make sure that you are at the base of the project directory
+
+
+```javascript
+gen -s {{SERVICE NAME}}
+
+gen service {{SERVICE NAME}}
+
+// Generates a service with a plain template inside your service.
+
+// Generates a new service. both execute the same thing
+```
+
+```javascript
+gen -s {{SERVICE NAME}} --get
+
+// Generates a service with a get request template inside your service
+
+// gen -s is used above just as an example
+// You can replace 'gen -s' with 'gen service'
+```
+
+```javascript
+gen -s {{SERVICE NAME}} --post
+
+// Generates a service with a post request template inside your service
+
+// gen -s is used above just as an example
+// You can replace 'gen -s' with 'gen service'
+```
+
+
 ___________
 #### Clone Component:
 ```javascript
@@ -98,7 +115,6 @@ gen clone {{COMPONENT NAME THAT WILL BE CLONED}} {{NAME OF CLONED COMPONENT}}
 // Clones the specified component and renames the new component as well as updates components.js
 ```
 
-___________
 
 ___________
 #### Remove Component:
