@@ -296,7 +296,8 @@ if (isDev) {
     "bootstrap-css-only": "3.3.6",
     "lodash": "4.13.1",
     "normalize.css": "4.1.1",
-    "http-server": "^0.9.0"
+    "http-server": "^0.9.0",
+    "angular-1.5-cli":"^1.6.0"
   },
   "devDependencies": {
     "angular-mocks": "1.5.7",
