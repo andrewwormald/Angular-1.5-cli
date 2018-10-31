@@ -3,6 +3,8 @@
 ___________
 # ANGULAR-1.5-CLI
 ###### created by  Andrew Wormald
+#### Total downloads: https://npm-stat.com/charts.html?package=angular-1.5-cli&from=2014-10-31
+__________
 
 ### Installation:
 ```bash
